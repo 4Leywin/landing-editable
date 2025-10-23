@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
+import { db } from "@/services/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function BenefitsTab() {
     const [benefits, setBenefits] = useState<any[]>([
@@ -12,11 +14,10 @@ export default function BenefitsTab() {
         let mounted = true;
         async function load() {
             try {
-                const res = await fetch("/api/content");
-                if (!res.ok) throw new Error("no content api");
-                const json = await res.json();
+                const snap = await getDoc(doc(db, "benefits", "main"));
+                const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
-                setBenefits(json.BENEFITS ?? DEFAULT_CONTENT.BENEFITS);
+                setBenefits(data?.BENEFITS ?? DEFAULT_CONTENT.BENEFITS);
             } catch (err) {
                 setBenefits(DEFAULT_CONTENT.BENEFITS);
             }
@@ -28,32 +29,45 @@ export default function BenefitsTab() {
     }, []);
 
     function addBenefit() {
-        setBenefits((s) => [
-            ...s,
+        const newItems = [
+            ...benefits,
             {
                 id: `b${Date.now()}`,
                 title: "Nuevo beneficio",
                 description: "Descripción",
             },
-        ]);
+        ];
+        setBenefits(newItems);
+        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems })
+            .then(() => setMessage("Beneficios actualizados"))
+            .catch((e) =>
+                setMessage("Error guardando beneficios: " + String(e))
+            );
     }
     function updateBenefit(idx: number, field: string, value: string) {
-        setBenefits((s) =>
-            s.map((it, i) => (i === idx ? { ...it, [field]: value } : it))
+        const newItems = benefits.map((it, i) =>
+            i === idx ? { ...it, [field]: value } : it
         );
+        setBenefits(newItems);
+        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems })
+            .then(() => setMessage("Beneficios actualizados"))
+            .catch((e) =>
+                setMessage("Error guardando beneficios: " + String(e))
+            );
     }
     function removeBenefit(idx: number) {
-        setBenefits((s) => s.filter((_, i) => i !== idx));
+        const newItems = benefits.filter((_, i) => i !== idx);
+        setBenefits(newItems);
+        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems })
+            .then(() => setMessage("Beneficios actualizados"))
+            .catch((e) =>
+                setMessage("Error guardando beneficios: " + String(e))
+            );
     }
 
     async function saveSection() {
         try {
-            const res = await fetch("/api/content", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ BENEFITS: benefits }),
-            });
-            if (!res.ok) throw new Error("save failed");
+            await setDoc(doc(db, "benefits", "main"), { BENEFITS: benefits });
             setMessage("Beneficios guardados");
         } catch (err: any) {
             setMessage(

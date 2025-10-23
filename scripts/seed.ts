@@ -1,25 +1,172 @@
 import DEFAULT_CONTENT from "../lib/content";
+import { db } from "@/services/firebase/client";
+import { doc, setDoc } from "firebase/firestore";
 
+// Helper interno para ejecutar la persistencia de una sección
+async function runSave(
+    sectionKey: string,
+    value: any,
+    options?: { saveFn?: (payload: any) => Promise<void> | void }
+) {
+    const payload = { [sectionKey]: value };
+    if (options?.saveFn) {
+        await options.saveFn(payload);
+        return payload;
+    }
+    try {
+        // Firestore requires an object; wrap arrays/primitives in the payload object so
+        // documents always contain a top-level key named after the section (e.g. { RESOURCES: [...] })
+        await setDoc(doc(db, sectionKey.toLowerCase(), "main"), payload);
+        console.log(
+            `Seeder (${sectionKey}): escrito en Firestore -> collection='${sectionKey.toLowerCase()}', doc='main'`
+        );
+        return payload;
+    } catch (err) {
+        console.error(
+            `Seeder (${sectionKey}): error escribiendo en Firestore`,
+            err
+        );
+        // Fallback: imprimir payload
+        console.log(JSON.stringify(payload, null, 2));
+        return payload;
+    }
+}
+
+// --- Getters ---
 export function getSeedContent() {
-  // Retorna directamente el DEFAULT_CONTENT para que el usuario lo use.
-  return { ...DEFAULT_CONTENT } as any;
+    return { ...(DEFAULT_CONTENT as any) } as any;
 }
 
-/**
- * seed - prepara el contenido y lo pasa a saveFn si se proporciona.
- * saveFn puede ser cualquier función async que guarde en DB.
- * Si no se proporciona, por defecto se hace console.log del objeto (para inspección).
- */
-export async function seed(options?: { saveFn?: (content: any) => Promise<void> | void }) {
-  const content = getSeedContent();
-  if (options?.saveFn) {
-    await options.saveFn(content);
-    return;
-  }
-
-  // Default: print a short summary and the content JSON to stdout
-  console.log("Seeder: contenido preparado. Ejecuta seed({ saveFn }) para persistir.");
-  console.log(JSON.stringify(content, null, 2));
+export function getHero() {
+    return { ...(DEFAULT_CONTENT as any).HERO };
 }
 
-export default getSeedContent;
+export function getNavItems() {
+    return [...((DEFAULT_CONTENT as any).NAV_ITEMS ?? [])];
+}
+
+export function getBenefits() {
+    return [...((DEFAULT_CONTENT as any).BENEFITS ?? [])];
+}
+
+export function getContact() {
+    return { ...(DEFAULT_CONTENT as any).CONTACT };
+}
+
+export function getResources() {
+    return [...((DEFAULT_CONTENT as any).RESOURCES ?? [])];
+}
+
+export function getSchedule() {
+    return [...((DEFAULT_CONTENT as any).SCHEDULE ?? [])];
+}
+
+export function getFaqs() {
+    return [...((DEFAULT_CONTENT as any).FAQS ?? [])];
+}
+
+export function getCtas() {
+    return [...((DEFAULT_CONTENT as any).CTAS ?? [])];
+}
+
+export function getSite() {
+    return { ...(DEFAULT_CONTENT as any).SITE };
+}
+
+export function getFooterNote() {
+    return (DEFAULT_CONTENT as any).FOOTER_NOTE;
+}
+
+export function getPrices() {
+    return [...((DEFAULT_CONTENT as any).PRICES ?? [])];
+}
+
+// --- Seeders por sección ---
+export function seedHero(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("HERO", getHero(), options);
+}
+
+export function seedNavItems(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("NAV_ITEMS", getNavItems(), options);
+}
+
+export function seedBenefits(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("BENEFITS", getBenefits(), options);
+}
+
+export function seedContact(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("CONTACT", getContact(), options);
+}
+
+export function seedResources(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("RESOURCES", getResources(), options);
+}
+
+export function seedSchedule(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("SCHEDULE", getSchedule(), options);
+}
+
+export function seedFaqs(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("FAQS", getFaqs(), options);
+}
+
+export function seedCtas(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("CTAS", getCtas(), options);
+}
+
+export function seedSite(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("SITE", getSite(), options);
+}
+
+export function seedFooterNote(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("FOOTER_NOTE", getFooterNote(), options);
+}
+
+export function seedPrices(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("PRICES", getPrices(), options);
+}
+
+// Ejecuta todos los seeders en orden. Opcionalmente se puede pasar saveFn que se llamará para cada sección.
+export async function seedAll(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    const results: Record<string, any> = {};
+
+    results.HERO = await seedHero(options);
+    results.NAV_ITEMS = await seedNavItems(options);
+    results.BENEFITS = await seedBenefits(options);
+    results.CONTACT = await seedContact(options);
+    results.RESOURCES = await seedResources(options);
+    results.SCHEDULE = await seedSchedule(options);
+    results.FAQS = await seedFaqs(options);
+    results.CTAS = await seedCtas(options);
+    results.SITE = await seedSite(options);
+    results.FOOTER_NOTE = await seedFooterNote(options);
+    results.PRICES = await seedPrices(options);
+
+    return results;
+}
+
+seedAll();

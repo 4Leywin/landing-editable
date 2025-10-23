@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
+import { db } from "@/services/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function NavTab() {
     const [navItems, setNavItems] = useState<any[]>([
@@ -13,11 +15,10 @@ export default function NavTab() {
         let mounted = true;
         async function load() {
             try {
-                const res = await fetch("/api/content");
-                if (!res.ok) throw new Error("no content api");
-                const json = await res.json();
+                const snap = await getDoc(doc(db, "nav_items", "main"));
+                const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
-                setNavItems(json.NAV_ITEMS ?? DEFAULT_CONTENT.NAV_ITEMS);
+                setNavItems(data?.NAV_ITEMS ?? DEFAULT_CONTENT.NAV_ITEMS);
             } catch (err) {
                 setNavItems(DEFAULT_CONTENT.NAV_ITEMS);
             } finally {
@@ -31,25 +32,38 @@ export default function NavTab() {
     }, []);
 
     function addNavItem() {
-        setNavItems((s) => [...s, { label: "Nuevo", href: "#new" }]);
+        const newItems = [...navItems, { label: "Nuevo", href: "#new" }];
+        setNavItems(newItems);
+        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+            .then(() => setMessage("Navegación actualizada"))
+            .catch((e) =>
+                setMessage("Error guardando navegación: " + String(e))
+            );
     }
     function updateNavItem(idx: number, field: string, value: string) {
-        setNavItems((s) =>
-            s.map((it, i) => (i === idx ? { ...it, [field]: value } : it))
+        const newItems = navItems.map((it, i) =>
+            i === idx ? { ...it, [field]: value } : it
         );
+        setNavItems(newItems);
+        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+            .then(() => setMessage("Navegación actualizada"))
+            .catch((e) =>
+                setMessage("Error guardando navegación: " + String(e))
+            );
     }
     function removeNavItem(idx: number) {
-        setNavItems((s) => s.filter((_, i) => i !== idx));
+        const newItems = navItems.filter((_, i) => i !== idx);
+        setNavItems(newItems);
+        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+            .then(() => setMessage("Navegación actualizada"))
+            .catch((e) =>
+                setMessage("Error guardando navegación: " + String(e))
+            );
     }
 
     async function saveSection() {
         try {
-            const res = await fetch("/api/content", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ NAV_ITEMS: navItems }),
-            });
-            if (!res.ok) throw new Error("save failed");
+            await setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: navItems });
             setMessage("Navegación guardada");
         } catch (err: any) {
             setMessage(

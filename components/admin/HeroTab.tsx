@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
-import { auth } from "@/services/firebase/client";
-import { getAll } from "@/services/firebase/content";
+import { db } from "@/services/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 export default function HeroTab() {
     const [hero, setHero] = useState<any>({ ...DEFAULT_CONTENT.HERO });
     const [loading, setLoading] = useState(true);
@@ -12,10 +12,10 @@ export default function HeroTab() {
         let mounted = true;
         async function load() {
             try {
-                const data = await getAll("hero");
-                console.log("Fetched hero content:", data);
+                const snap = await getDoc(doc(db, "hero", "main"));
+                const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
-                setHero(data);
+                setHero(data?.HERO ?? DEFAULT_CONTENT.HERO);
             } catch (err) {
                 setHero(DEFAULT_CONTENT.HERO);
             } finally {
@@ -30,8 +30,7 @@ export default function HeroTab() {
 
     async function saveSection() {
         try {
-            const token = await auth.currentUser?.getIdToken();
-            const res = await getAll("hero");
+            await setDoc(doc(db, "hero", "main"), { HERO: hero });
             setMessage("Hero guardado");
         } catch (err: any) {
             setMessage("Error guardando hero: " + (err.message || String(err)));

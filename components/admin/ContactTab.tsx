@@ -2,6 +2,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
+import { db } from "@/services/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function ContactTab() {
     const [contact, setContact] = useState<any>({ ...DEFAULT_CONTENT.CONTACT });
@@ -11,11 +13,10 @@ export default function ContactTab() {
         let mounted = true;
         async function load() {
             try {
-                const res = await fetch("/api/content");
-                if (!res.ok) throw new Error("no content api");
-                const json = await res.json();
+                const snap = await getDoc(doc(db, "contact", "main"));
+                const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
-                setContact(json.CONTACT ?? DEFAULT_CONTENT.CONTACT);
+                setContact(data?.CONTACT ?? DEFAULT_CONTENT.CONTACT);
             } catch (err) {
                 setContact(DEFAULT_CONTENT.CONTACT);
             }
@@ -28,12 +29,7 @@ export default function ContactTab() {
 
     async function saveSection() {
         try {
-            const res = await fetch("/api/content", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ CONTACT: contact }),
-            });
-            if (!res.ok) throw new Error("save failed");
+            await setDoc(doc(db, "contact", "main"), { CONTACT: contact });
             setMessage("Contacto guardado");
         } catch (err: any) {
             setMessage(
@@ -46,6 +42,19 @@ export default function ContactTab() {
         setContact(DEFAULT_CONTENT.CONTACT);
         setMessage("Contacto restaurado a defaults (aún no guardado)");
     }
+
+    // Persistir cambios inmediatos al actualizar campos
+    useEffect(() => {
+        // debounce simple para no spamear escrituras en cada tecla
+        const t = setTimeout(() => {
+            setDoc(doc(db, "contact", "main"), { CONTACT: contact })
+                .then(() => setMessage("Contacto actualizado"))
+                .catch((e) =>
+                    setMessage("Error actualizando contacto: " + String(e))
+                );
+        }, 400);
+        return () => clearTimeout(t);
+    }, [contact]);
 
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">

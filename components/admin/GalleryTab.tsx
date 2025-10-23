@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
+import { db } from "@/services/firebase/client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 export default function GalleryTab() {
     const [resources, setResources] = useState<any[]>([
@@ -12,11 +14,10 @@ export default function GalleryTab() {
         let mounted = true;
         async function load() {
             try {
-                const res = await fetch("/api/content");
-                if (!res.ok) throw new Error("no content api");
-                const json = await res.json();
+                const snap = await getDoc(doc(db, "resources", "main"));
+                const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
-                setResources(json.RESOURCES ?? DEFAULT_CONTENT.RESOURCES);
+                setResources(data?.RESOURCES ?? DEFAULT_CONTENT.RESOURCES);
             } catch (err) {
                 setResources(DEFAULT_CONTENT.RESOURCES);
             }
@@ -33,8 +34,8 @@ export default function GalleryTab() {
             const result = reader.result as string;
             const id = `r${Date.now()}`;
             const type = file.type.startsWith("video") ? "video" : "image";
-            setResources((s) => [
-                ...s,
+            const newItems = [
+                ...resources,
                 {
                     id,
                     type,
@@ -43,29 +44,40 @@ export default function GalleryTab() {
                     subtitle: "",
                     note: "",
                 },
-            ]);
+            ];
+            setResources(newItems);
+            setDoc(doc(db, "resources", "main"), { RESOURCES: newItems })
+                .then(() => setMessage("Galería actualizada"))
+                .catch((e) =>
+                    setMessage("Error guardando galería: " + String(e))
+                );
         };
         reader.readAsDataURL(file);
     }
 
     function removeResource(idx: number) {
-        setResources((s) => s.filter((_, i) => i !== idx));
+        const newItems = resources.filter((_, i) => i !== idx);
+        setResources(newItems);
+        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems })
+            .then(() => setMessage("Galería actualizada"))
+            .catch((e) => setMessage("Error guardando galería: " + String(e)));
     }
 
     function updateResource(idx: number, field: string, value: any) {
-        setResources((s) =>
-            s.map((r, i) => (i === idx ? { ...r, [field]: value } : r))
+        const newItems = resources.map((r, i) =>
+            i === idx ? { ...r, [field]: value } : r
         );
+        setResources(newItems);
+        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems })
+            .then(() => setMessage("Galería actualizada"))
+            .catch((e) => setMessage("Error guardando galería: " + String(e)));
     }
 
     async function saveSection() {
         try {
-            const res = await fetch("/api/content", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ RESOURCES: resources }),
+            await setDoc(doc(db, "resources", "main"), {
+                RESOURCES: resources,
             });
-            if (!res.ok) throw new Error("save failed");
             setMessage("Galería guardada");
         } catch (err: any) {
             setMessage(
