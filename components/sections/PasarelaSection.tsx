@@ -1,33 +1,12 @@
+"use client";
 import React, { useEffect, useState, useRef } from "react";
 import { useInView } from "react-intersection-observer";
-
-const FAQ_DATA = [
-    {
-        q: "QUE PUEDES HACER EN LA SECCIÓN",
-        a: `Acariciar y besar casi todo mi cuerpo (menos mi zona íntima): mis senos, glúteos, piernas, cintura, pies — serán tuyos 😏`,
-    },
-    {
-        q: "POSAS PARA MI?",
-        a: `Verme en la pose que más te excite 🔥 y pedirme que me toque como tú me digas; te brindo el espectáculo que deseas ver…`,
-    },
-    {
-        q: "HACEN SERVICIO DE FETICHE?",
-        a: `Puedes contarme todos tus fetiches 🤩. Muchos de ellos ya están incluidos en esta sesión y si no es así lo conversamos 😉`,
-    },
-    {
-        q: "LA TERMINACIÓN DÓNDE SE SUELE HACER?",
-        a: `Eres libre de elegir: puedo terminar con mis senos, glúteos, manos, pies y también en mi espalda 😏. Solo se te pide ser EDUCADO, ASEADO y RESPETAR las reglas 🙏🏻`,
-    },
-];
+import DEFAULT_CONTENT from "../../lib/content";
 
 export default function PasarelaSection() {
     const { ref, inView } = useInView({ threshold: 0.15, triggerOnce: true });
-    const [videoSrc, setVideoSrc] = useState<string>(
-        "/placeholder-vertical.mp4"
-    );
-    const [posterSrc, setPosterSrc] = useState<string>(
-        "/placeholder-vertical.jpg"
-    );
+    const [videoSrc, setVideoSrc] = useState<string>("");
+    const [posterSrc, setPosterSrc] = useState<string>("/placeholder.jpg");
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [showPlayOverlay, setShowPlayOverlay] = useState(false);
@@ -38,11 +17,13 @@ export default function PasarelaSection() {
             const mobile = window.innerWidth <= 768;
             setIsMobile(mobile);
             if (mobile) {
-                setVideoSrc("/placeholder-vertical-mobile.mp4");
-                setPosterSrc("/placeholder-vertical-mobile.jpg");
+                // no mobile video placeholder available in /public, use image fallback
+                setVideoSrc("");
+                setPosterSrc("/placeholder.jpg");
             } else {
-                setVideoSrc("/placeholder-vertical.mp4");
-                setPosterSrc("/placeholder-vertical.jpg");
+                // no desktop video placeholder available in /public, use image fallback
+                setVideoSrc("");
+                setPosterSrc("/placeholder.jpg");
             }
         }
         updateSrc();
@@ -85,20 +66,28 @@ export default function PasarelaSection() {
                                 isMobile ? "h-[60vh]" : "h-[520px]"
                             } lg:h-[720px]`}
                         >
-                            <video
-                                ref={videoRef}
-                                className={`absolute inset-0 w-full h-full object-cover`}
-                                controls
-                                playsInline
-                                muted
-                                loop
-                                autoPlay
-                                preload="metadata"
-                                poster={posterSrc}
-                            >
-                                <source src={videoSrc} type="video/mp4" />
-                                Tu navegador no soporta video.
-                            </video>
+                            {videoSrc ? (
+                                <video
+                                    ref={videoRef}
+                                    className={`absolute inset-0 w-full h-full object-cover`}
+                                    controls
+                                    playsInline
+                                    muted
+                                    loop
+                                    autoPlay
+                                    preload="metadata"
+                                    poster={posterSrc}
+                                >
+                                    <source src={videoSrc} type="video/mp4" />
+                                    Tu navegador no soporta video.
+                                </video>
+                            ) : (
+                                <img
+                                    src={posterSrc}
+                                    alt="placeholder"
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                            )}
 
                             {showPlayOverlay && (
                                 <button
@@ -134,7 +123,7 @@ export default function PasarelaSection() {
                     </div>
 
                     <div className="space-y-6">
-                        {FAQ_DATA.map((item, idx) => (
+                        {(DEFAULT_CONTENT.FAQS || []).map((item, idx) => (
                             <details
                                 key={idx}
                                 className="group bg-background/50 border border-border rounded-lg p-5"

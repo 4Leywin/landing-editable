@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import DEFAULT_CONTENT from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 function makeId(name = "") {
     return (
@@ -18,7 +19,6 @@ export default function TestimonialsTab() {
         ...(DEFAULT_CONTENT.TESTIMONIALS || []),
     ]);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -63,9 +63,9 @@ export default function TestimonialsTab() {
             await setDoc(doc(db, "testimonials", "main"), {
                 TESTIMONIALS: items,
             });
-            setMessage("Testimonials guardados");
+            toast.success("Testimonials guardados");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando testimonials: " + (err.message || String(err))
             );
         }
@@ -73,7 +73,7 @@ export default function TestimonialsTab() {
 
     function restoreDefaults() {
         setItems(DEFAULT_CONTENT.TESTIMONIALS);
-        setMessage("Testimonials restaurados a defaults (aún no guardado)");
+        toast("Testimonials restaurados a defaults (aún no guardado)");
     }
 
     if (loading) return <div className="p-4">Cargando testimonials...</div>;
@@ -169,7 +169,7 @@ export default function TestimonialsTab() {
                 </button>
             </div>
 
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

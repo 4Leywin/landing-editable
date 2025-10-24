@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 function makeId(name = "") {
     return (
@@ -16,7 +17,6 @@ function makeId(name = "") {
 export default function PricesTab() {
     const [prices, setPrices] = useState<any[]>([...DEFAULT_CONTENT.PRICES]);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -24,6 +24,7 @@ export default function PricesTab() {
             try {
                 const snap = await getDoc(doc(db, "prices", "main"));
                 const data = snap.exists() ? (snap.data() as any) : null;
+                console.log("Loaded PRICES data:", data);
                 if (!mounted) return;
                 setPrices(data?.PRICES ?? DEFAULT_CONTENT.PRICES);
             } catch (err) {
@@ -64,9 +65,9 @@ export default function PricesTab() {
     async function saveSection() {
         try {
             await setDoc(doc(db, "prices", "main"), { PRICES: prices });
-            setMessage("Prices guardados");
+            toast.success("Prices guardados");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando prices: " + (err.message || String(err))
             );
         }
@@ -74,7 +75,7 @@ export default function PricesTab() {
 
     function restoreDefaults() {
         setPrices(DEFAULT_CONTENT.PRICES);
-        setMessage("Prices restaurados a defaults (aún no guardado)");
+        toast("Prices restaurados a defaults (aún no guardado)");
     }
 
     if (loading) {
@@ -182,7 +183,7 @@ export default function PricesTab() {
                 </button>
             </div>
 
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

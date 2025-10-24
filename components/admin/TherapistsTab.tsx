@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 function makeId(name = "") {
     return (
@@ -16,7 +17,7 @@ function makeId(name = "") {
 export default function TherapistsTab() {
     const [items, setItems] = useState<any[]>([...DEFAULT_CONTENT.THERAPISTS]);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState<string | null>(null);
+    // usamos toast para feedback en lugar de message state
 
     useEffect(() => {
         let mounted = true;
@@ -59,9 +60,9 @@ export default function TherapistsTab() {
     async function saveSection() {
         try {
             await setDoc(doc(db, "therapists", "main"), { THERAPISTS: items });
-            setMessage("Therapists guardados");
+            toast.success("Therapists guardados");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando therapists: " + (err.message || String(err))
             );
         }
@@ -69,7 +70,7 @@ export default function TherapistsTab() {
 
     function restoreDefaults() {
         setItems(DEFAULT_CONTENT.THERAPISTS);
-        setMessage("Therapists restaurados a defaults (aún no guardado)");
+        toast("Therapists restaurados a defaults (aún no guardado)");
     }
 
     if (loading) return <div className="p-4">Cargando terapeutas...</div>;
@@ -157,7 +158,7 @@ export default function TherapistsTab() {
                 </button>
             </div>
 
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

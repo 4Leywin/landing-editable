@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 export default function HeroTab() {
     const [hero, setHero] = useState<any>({ ...DEFAULT_CONTENT.HERO });
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -32,15 +32,17 @@ export default function HeroTab() {
     async function saveSection() {
         try {
             await setDoc(doc(db, "hero", "main"), { HERO: hero });
-            setMessage("Hero guardado");
+            toast.success("Hero guardado");
         } catch (err: any) {
-            setMessage("Error guardando hero: " + (err.message || String(err)));
+            toast.error(
+                "Error guardando hero: " + (err.message || String(err))
+            );
         }
     }
 
     function restoreDefaults() {
         setHero(DEFAULT_CONTENT.HERO);
-        setMessage("Hero restaurado a defaults (aún no guardado)");
+        toast("Hero restaurado a defaults (aún no guardado)");
     }
 
     return (
@@ -88,7 +90,7 @@ export default function HeroTab() {
                     Restaurar defaults
                 </button>
             </div>
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

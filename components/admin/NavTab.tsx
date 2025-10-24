@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 export default function NavTab() {
     const [navItems, setNavItems] = useState<any[]>([
         ...DEFAULT_CONTENT.NAV_ITEMS,
     ]);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -35,9 +35,9 @@ export default function NavTab() {
         const newItems = [...navItems, { label: "Nuevo", href: "#new" }];
         setNavItems(newItems);
         setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => setMessage("Navegación actualizada"))
+            .then(() => toast.success("Navegación actualizada"))
             .catch((e) =>
-                setMessage("Error guardando navegación: " + String(e))
+                toast.error("Error guardando navegación: " + String(e))
             );
     }
     function updateNavItem(idx: number, field: string, value: string) {
@@ -46,27 +46,27 @@ export default function NavTab() {
         );
         setNavItems(newItems);
         setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => setMessage("Navegación actualizada"))
+            .then(() => toast.success("Navegación actualizada"))
             .catch((e) =>
-                setMessage("Error guardando navegación: " + String(e))
+                toast.error("Error guardando navegación: " + String(e))
             );
     }
     function removeNavItem(idx: number) {
         const newItems = navItems.filter((_, i) => i !== idx);
         setNavItems(newItems);
         setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => setMessage("Navegación actualizada"))
+            .then(() => toast.success("Navegación actualizada"))
             .catch((e) =>
-                setMessage("Error guardando navegación: " + String(e))
+                toast.error("Error guardando navegación: " + String(e))
             );
     }
 
     async function saveSection() {
         try {
             await setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: navItems });
-            setMessage("Navegación guardada");
+            toast.success("Navegación guardada");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando navegación: " + (err.message || String(err))
             );
         }
@@ -74,7 +74,7 @@ export default function NavTab() {
 
     function restoreDefaults() {
         setNavItems(DEFAULT_CONTENT.NAV_ITEMS);
-        setMessage("Navegación restaurada a defaults (aún no guardada)");
+        toast("Navegación restaurada a defaults (aún no guardada)");
     }
 
     return (
@@ -124,7 +124,7 @@ export default function NavTab() {
                     Restaurar defaults
                 </button>
             </div>
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

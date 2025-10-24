@@ -6,7 +6,10 @@ import { doc, setDoc } from "firebase/firestore";
 async function runSave(
     sectionKey: string,
     value: any,
-    options?: { saveFn?: (payload: any) => Promise<void> | void }
+    options?: {
+        saveFn?: (payload: any) => Promise<void> | void;
+        collectionName?: string; // override the collection name if needed
+    }
 ) {
     const payload = { [sectionKey]: value };
     if (options?.saveFn) {
@@ -16,9 +19,10 @@ async function runSave(
     try {
         // Firestore requires an object; wrap arrays/primitives in the payload object so
         // documents always contain a top-level key named after the section (e.g. { RESOURCES: [...] })
-        await setDoc(doc(db, sectionKey.toLowerCase(), "main"), payload);
+        const collection = options?.collectionName ?? sectionKey.toLowerCase();
+        await setDoc(doc(db, collection, "main"), payload);
         console.log(
-            `Seeder (${sectionKey}): escrito en Firestore -> collection='${sectionKey.toLowerCase()}', doc='main'`
+            `Seeder (${sectionKey}): escrito en Firestore -> collection='${collection}', doc='main'`
         );
         return payload;
     } catch (err) {
@@ -65,8 +69,20 @@ export function getFaqs() {
     return [...((DEFAULT_CONTENT as any).FAQS ?? [])];
 }
 
+export function getFaqs2() {
+    return [...((DEFAULT_CONTENT as any).FAQS_2 ?? [])];
+}
+
 export function getCtas() {
     return [...((DEFAULT_CONTENT as any).CTAS ?? [])];
+}
+
+export function getTherapists() {
+    return [...((DEFAULT_CONTENT as any).THERAPISTS ?? [])];
+}
+
+export function getTestimonials() {
+    return [...((DEFAULT_CONTENT as any).TESTIMONIALS ?? [])];
 }
 
 export function getSite() {
@@ -121,13 +137,39 @@ export function seedSchedule(options?: {
 export function seedFaqs(options?: {
     saveFn?: (payload: any) => Promise<void> | void;
 }) {
-    return runSave("FAQS", getFaqs(), options);
+    // write payload { FAQS: [...] } into collection 'faq1' (doc 'main')
+    return runSave("FAQS", getFaqs(), {
+        ...(options ?? {}),
+        collectionName: "faq1",
+    });
+}
+
+export function seedFaqs2(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    // write payload { FAQS_2: [...] } into collection 'faq2' (doc 'main')
+    return runSave("FAQS_2", getFaqs2(), {
+        ...(options ?? {}),
+        collectionName: "faq2",
+    });
 }
 
 export function seedCtas(options?: {
     saveFn?: (payload: any) => Promise<void> | void;
 }) {
     return runSave("CTAS", getCtas(), options);
+}
+
+export function seedTherapists(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("THERAPISTS", getTherapists(), options);
+}
+
+export function seedTestimonials(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    return runSave("TESTIMONIALS", getTestimonials(), options);
 }
 
 export function seedSite(options?: {
@@ -161,7 +203,10 @@ export async function seedAll(options?: {
     results.RESOURCES = await seedResources(options);
     results.SCHEDULE = await seedSchedule(options);
     results.FAQS = await seedFaqs(options);
+    results.FAQS_2 = await seedFaqs2(options);
     results.CTAS = await seedCtas(options);
+    results.THERAPISTS = await seedTherapists(options);
+    results.TESTIMONIALS = await seedTestimonials(options);
     results.SITE = await seedSite(options);
     results.FOOTER_NOTE = await seedFooterNote(options);
     results.PRICES = await seedPrices(options);

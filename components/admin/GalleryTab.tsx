@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 export default function GalleryTab() {
     const [resources, setResources] = useState<any[]>([
         ...DEFAULT_CONTENT.RESOURCES,
     ]);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -47,9 +47,9 @@ export default function GalleryTab() {
             ];
             setResources(newItems);
             setDoc(doc(db, "resources", "main"), { RESOURCES: newItems })
-                .then(() => setMessage("Galería actualizada"))
+                .then(() => toast.success("Galería actualizada"))
                 .catch((e) =>
-                    setMessage("Error guardando galería: " + String(e))
+                    toast.error("Error guardando galería: " + String(e))
                 );
         };
         reader.readAsDataURL(file);
@@ -58,9 +58,10 @@ export default function GalleryTab() {
     function removeResource(idx: number) {
         const newItems = resources.filter((_, i) => i !== idx);
         setResources(newItems);
-        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems })
-            .then(() => setMessage("Galería actualizada"))
-            .catch((e) => setMessage("Error guardando galería: " + String(e)));
+        // update silently on remove to avoid toast spam when editing
+        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems }).catch(
+            (e) => toast.error("Error guardando galería: " + String(e))
+        );
     }
 
     function updateResource(idx: number, field: string, value: any) {
@@ -68,9 +69,10 @@ export default function GalleryTab() {
             i === idx ? { ...r, [field]: value } : r
         );
         setResources(newItems);
-        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems })
-            .then(() => setMessage("Galería actualizada"))
-            .catch((e) => setMessage("Error guardando galería: " + String(e)));
+        // autosave without success toast to avoid spamming when typing
+        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems }).catch(
+            (e) => toast.error("Error guardando galería: " + String(e))
+        );
     }
 
     async function saveSection() {
@@ -78,9 +80,9 @@ export default function GalleryTab() {
             await setDoc(doc(db, "resources", "main"), {
                 RESOURCES: resources,
             });
-            setMessage("Galería guardada");
+            toast.success("Galería guardada");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando galería: " + (err.message || String(err))
             );
         }
@@ -88,7 +90,7 @@ export default function GalleryTab() {
 
     function restoreDefaults() {
         setResources(DEFAULT_CONTENT.RESOURCES);
-        setMessage("Galería restaurada a defaults (aún no guardada)");
+        toast("Galería restaurada a defaults (aún no guardada)");
     }
 
     return (
@@ -175,7 +177,7 @@ export default function GalleryTab() {
                     Restaurar defaults
                 </button>
             </div>
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

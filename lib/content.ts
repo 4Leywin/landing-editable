@@ -96,12 +96,13 @@ export const GALLERY_NOTE =
 
 // --- Centralized site content for easy editing ---
 export const SITE = {
-    name: "Ritual Dorado",
+    name: "Luxury Star Spa",
     year: 2025,
 };
 
 export const HERO = {
-    videoSrc: "/placeholder.mp4",
+    // leave empty so components fall back to an image placeholder if no video is provided
+    videoSrc: "",
     title: "DISFRUTA DE TU MASAJE TÁNTRICO CON 40 Soles de DESCUENTO",
     subtitle:
         '"Vive una experiencia sensual y relajante como nunca antes, somos 8 masajistas a escoger."',
@@ -167,7 +168,7 @@ export const PRICES: PriceItem[] = [
     },
     {
         id: "sin-lenceria",
-        name: "Sin lencería",
+        name: "Sin lenceria",
         price: "S/150",
         duration: "30 minutos",
         description: "Sesión corta sin vestimenta especial",
@@ -177,7 +178,90 @@ export const PRICES: PriceItem[] = [
     },
 ];
 
+export type TherapistItem = {
+    id: string;
+    name: string;
+    specialty?: string;
+    image?: string;
+    bio?: string;
+};
+
+export const THERAPISTS: TherapistItem[] = [
+    {
+        id: "valentina",
+        name: "Valentina",
+        specialty: "Masaje Tántrico Clásico",
+        image: "/placeholder.svg?height=400&width=300",
+        bio: "Especialista en técnicas ancestrales con 8 años de experiencia.",
+    },
+    {
+        id: "isabela",
+        name: "Isabela",
+        specialty: "Masaje Energético",
+        image: "/placeholder.svg?height=400&width=300",
+        bio: "Experta en equilibrio energético y consciencia corporal.",
+    },
+    {
+        id: "catalina",
+        name: "Catalina",
+        specialty: "Masaje Sensorial",
+        image: "/placeholder.svg?height=400&width=300",
+        bio: "Especialista en despertar sensorial y presencia plena.",
+    },
+];
+
+export type TestimonialItem = {
+    id: string;
+    name?: string;
+    age?: number;
+    text: string;
+    rating?: number;
+};
+
+export const TESTIMONIALS: TestimonialItem[] = [
+    {
+        id: "carlos-m",
+        name: "Carlos M.",
+        age: 29,
+        text: "Nunca había sentido algo así. Salí completamente relajado, con más energía y como si mi mente estuviera despejada. Realmente transforma tu forma de sentirte.",
+        rating: 5,
+    },
+    {
+        id: "javier-r",
+        name: "Javier R.",
+        age: 41,
+        text: "Me sorprendió lo conectado que me sentí cuerpo a cuerpo y con mis emociones. Fue una experiencia única que definitivamente repetiré.",
+        rating: 5,
+    },
+    {
+        id: "diego-f",
+        name: "Diego F.",
+        age: 50,
+        text: "Al principio dudaba, pero después de la sesión entendí lo poderoso que es este masaje Sensitivo. Relajación profunda, compañía agradable, trato de pareja y energía renovada en una sola hora. Me atendió Cattalleya.",
+        rating: 5,
+    },
+];
+
 export const FAQS = [
+    {
+        q: "QUE PUEDES HACER EN LA SECCIÓN",
+        a: `Acariciar y besar casi todo mi cuerpo (menos mi zona íntima): mis senos, glúteos, piernas, cintura, pies — serán tuyos 😏`,
+    },
+    {
+        q: "POSAS PARA MI?",
+        a: `Verme en la pose que más te excite 🔥 y pedirme que me toque como tú me digas; te brindo el espectáculo que deseas ver…`,
+    },
+    {
+        q: "HACEN SERVICIO DE FETICHE?",
+        a: `Puedes contarme todos tus fetiches 🤩. Muchos de ellos ya están incluidos en esta sesión y si no es así lo conversamos 😉`,
+    },
+    {
+        q: "LA TERMINACIÓN DÓNDE SE SUELE HACER?",
+        a: `Eres libre de elegir: puedo terminar con mis senos, glúteos, manos, pies y también en mi espalda 😏. Solo se te pide ser EDUCADO, ASEADO y RESPETAR las reglas 🙏🏻`,
+    },
+];
+
+export const FAQS_2 = [
     {
         q: "HAY OTRO TIPOS DE SERVICIO COMO FINAL FELIZ?",
         a: `Brindamos Sesiones Tántricas "SIN" Pen👉👌etración ni Ora👅les. ¿Has tenido esta experiencia antes?`,
@@ -217,7 +301,7 @@ export const CTAS = [
     { label: "Envía tu Consulta", url: "#" },
 ];
 
-export const FOOTER_NOTE = `© ${SITE.year} ${SITE.name}. Todos los derechos reservados. Discreción y profesionalismo garantizados.`;
+export const FOOTER_NOTE = `© ${SITE.year} ${SITE.name}.Discreción y profesionalismo garantizados.`;
 
 export const DEFAULT_CONTENT = {
     SITE,
@@ -232,6 +316,9 @@ export const DEFAULT_CONTENT = {
     GALLERY_NOTE,
     SCHEDULE,
     PRICES,
+    THERAPISTS,
+    TESTIMONIALS,
+    FAQS_2,
 };
 
 export default DEFAULT_CONTENT;
