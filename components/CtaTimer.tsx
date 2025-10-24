@@ -15,7 +15,7 @@ function formatRemaining(ms: number) {
 }
 
 export default function CtaTimer({
-    defaultMinutes = 10,
+    defaultMinutes = 60,
 }: {
     defaultMinutes?: number;
 }) {

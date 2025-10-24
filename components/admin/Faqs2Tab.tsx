@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 export default function Faqs2Tab() {
     const [faqs, setFaqs] = useState<any[]>([...DEFAULT_CONTENT.FAQS_2]);
     const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -48,9 +48,9 @@ export default function Faqs2Tab() {
         try {
             // write payload { FAQS_2: [...] } into collection 'faq2'
             await setDoc(doc(db, "faq2", "main"), { FAQS_2: faqs });
-            setMessage("FAQS_2 guardadas");
+            toast.success("FAQS_2 guardadas");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando faqs_2: " + (err.message || String(err))
             );
         }
@@ -58,7 +58,7 @@ export default function Faqs2Tab() {
 
     function restoreDefaults() {
         setFaqs(DEFAULT_CONTENT.FAQS_2);
-        setMessage("FAQs 2 restauradas a defaults (aún no guardado)");
+        toast("FAQs 2 restauradas a defaults (aún no guardado)");
     }
 
     if (loading) return <div className="p-4">Cargando FAQs 2...</div>;
@@ -119,7 +119,7 @@ export default function Faqs2Tab() {
                 </button>
             </div>
 
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }
