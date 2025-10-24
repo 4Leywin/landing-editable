@@ -2,30 +2,51 @@
 
 import { useInView } from "react-intersection-observer";
 import { Star } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getById } from "@/services/firebase/content";
+import DEFAULT_CONTENT from "../lib/content";
+
+function ensureId(item: any, idx: number) {
+    if (item?.id) return item;
+    return { ...item, id: String(item?.name || "t") + "-" + idx };
+}
 
 export default function Testimonials() {
     const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+    const [testimonials, setTestimonials] = useState<any[]>(
+        (DEFAULT_CONTENT.TESTIMONIALS || []).map((t, i) => ensureId(t, i))
+    );
 
-    const testimonials = [
-        {
-            name: "Carlos M.",
-            age: 29,
-            text: "Nunca había sentido algo así. Salí completamente relajado, con más energía y como si mi mente estuviera despejada. Realmente transforma tu forma de sentirte.",
-            rating: 5,
-        },
-        {
-            name: "Javier R.",
-            age: 41,
-            text: "Me sorprendió lo conectado que me sentí cuerpo a cuerpo y con mis emociones. Fue una experiencia única que definitivamente repetiré.",
-            rating: 5,
-        },
-        {
-            name: "Diego F.",
-            age: 50,
-            text: "Al principio dudaba, pero después de la sesión entendí lo poderoso que es este masaje Sensitivo. Relajación profunda, compañía agradable, trato de pareja y energía renovada en una sola hora. Me atendió Cattalleya.",
-            rating: 5,
-        },
-    ];
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const data = await getById<any>("testimonials", "main");
+                if (!mounted) return;
+                const remote = (data?.TESTIMONIALS || []).map(
+                    (t: any, i: number) => ensureId(t, i)
+                );
+                setTestimonials(
+                    remote.length
+                        ? remote
+                        : (DEFAULT_CONTENT.TESTIMONIALS || []).map((t, i) =>
+                              ensureId(t, i)
+                          )
+                );
+            } catch (e) {
+                // fall back silently to defaults
+                if (!mounted) return;
+                setTestimonials(
+                    (DEFAULT_CONTENT.TESTIMONIALS || []).map((t, i) =>
+                        ensureId(t, i)
+                    )
+                );
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     return (
         <section className="py-24 px-4 bg-linear-to-b from-background via-background/80 to-accent/10 relative overflow-hidden">
@@ -44,7 +65,7 @@ export default function Testimonials() {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {testimonials.map((testimonial, idx) => (
+                    {testimonials.map((testimonial: any, idx: number) => (
                         <div
                             key={idx}
                             className={`p-8 rounded-2xl border border-border bg-accent/20 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-700 hover:border-primary/60 transform hover:-translate-y-2 ${
@@ -56,7 +77,7 @@ export default function Testimonials() {
                         >
                             <div className="flex gap-1 mb-4">
                                 {Array.from({ length: testimonial.rating }).map(
-                                    (_, i) => (
+                                    (_: any, i: number) => (
                                         <Star
                                             key={i}
                                             size={16}

@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 export default function BenefitsTab() {
     const [benefits, setBenefits] = useState<any[]>([
         ...DEFAULT_CONTENT.BENEFITS,
     ]);
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -38,39 +38,34 @@ export default function BenefitsTab() {
             },
         ];
         setBenefits(newItems);
-        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems })
-            .then(() => setMessage("Beneficios actualizados"))
-            .catch((e) =>
-                setMessage("Error guardando beneficios: " + String(e))
-            );
+        // persist silently on add/remove/update to avoid toast spam; surface errors only
+        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems }).catch((e) =>
+            toast.error("Error guardando beneficios: " + String(e))
+        );
     }
     function updateBenefit(idx: number, field: string, value: string) {
         const newItems = benefits.map((it, i) =>
             i === idx ? { ...it, [field]: value } : it
         );
         setBenefits(newItems);
-        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems })
-            .then(() => setMessage("Beneficios actualizados"))
-            .catch((e) =>
-                setMessage("Error guardando beneficios: " + String(e))
-            );
+        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems }).catch((e) =>
+            toast.error("Error guardando beneficios: " + String(e))
+        );
     }
     function removeBenefit(idx: number) {
         const newItems = benefits.filter((_, i) => i !== idx);
         setBenefits(newItems);
-        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems })
-            .then(() => setMessage("Beneficios actualizados"))
-            .catch((e) =>
-                setMessage("Error guardando beneficios: " + String(e))
-            );
+        setDoc(doc(db, "benefits", "main"), { BENEFITS: newItems }).catch((e) =>
+            toast.error("Error guardando beneficios: " + String(e))
+        );
     }
 
     async function saveSection() {
         try {
             await setDoc(doc(db, "benefits", "main"), { BENEFITS: benefits });
-            setMessage("Beneficios guardados");
+            toast.success("Beneficios guardados");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando beneficios: " + (err.message || String(err))
             );
         }
@@ -78,7 +73,7 @@ export default function BenefitsTab() {
 
     function restoreDefaults() {
         setBenefits(DEFAULT_CONTENT.BENEFITS);
-        setMessage("Beneficios restaurados a defaults (aún no guardados)");
+        toast("Beneficios restaurados a defaults (aún no guardados)");
     }
 
     return (
@@ -120,7 +115,7 @@ export default function BenefitsTab() {
                 </button>
                 <button
                     onClick={saveSection}
-                    className="px-3 py-2 bg-secondary text-background rounded"
+                    className="px-3 py-2 bg-primary text-background rounded hover:scale-105 transition-transform active:scale-95 duration-1000"
                 >
                     Guardar sección
                 </button>
@@ -131,7 +126,7 @@ export default function BenefitsTab() {
                     Restaurar defaults
                 </button>
             </div>
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

@@ -1,8 +1,39 @@
-"use client";
+import { getById } from "@/services/firebase/content";
+import {
+    CTAS as CTAS_FALLBACK,
+    CONTACT as CONTACT_FALLBACK,
+    FOOTER_NOTE as FOOTER_NOTE_FALLBACK,
+} from "../lib/content";
+import CtaTimer from "./CtaTimer";
 
-import { CTAS, CONTACT, FOOTER_NOTE } from "../lib/content";
+export default async function CTA() {
+    let ctas = CTAS_FALLBACK;
+    let contact = CONTACT_FALLBACK;
+    let footer = FOOTER_NOTE_FALLBACK;
 
-export default function CTA() {
+    try {
+        const doc = await getById<any>("ctas", "main");
+        if (doc) {
+            ctas = doc.CTAS;
+        }
+        const docContact = await getById<any>("contact", "main");
+        console.log("Fetched contact document:", docContact);
+        if (docContact) {
+            contact = docContact.CONTACT;
+        }
+
+        const docFooter = await getById<any>("footer_note", "main");
+        if (docFooter) {
+            footer = docFooter.FOOTER_NOTE;
+        }
+    } catch (err) {
+        // keep fallbacks
+        console.warn(
+            "CTA: failed to read CTAS from Firestore, using fallbacks",
+            err
+        );
+    }
+
     return (
         <section
             id="contact"
@@ -31,7 +62,11 @@ export default function CTA() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6 mb-16">
-                    {CTAS.map((cta) => (
+                    {/* Countdown timer (client) */}
+                    <div className="md:col-span-2 flex justify-center">
+                        <CtaTimer />
+                    </div>
+                    {ctas.map((cta: any) => (
                         <a
                             key={cta.label}
                             href={cta.url}
@@ -49,27 +84,38 @@ export default function CTA() {
                         <p className="text-primary font-semibold text-lg mb-2">
                             📍 Ubicación
                         </p>
-                        <p className="text-foreground/70">{CONTACT.address}</p>
+                        <p className="text-foreground/70">{contact.address}</p>
                     </div>
                     <div>
                         <p className="text-primary font-semibold text-lg mb-2">
                             📞 Contacto
                         </p>
-                        <p className="text-foreground/70">{CONTACT.phone}</p>
+                        <p className="text-foreground/70">{contact.phone}</p>
                     </div>
                     <div>
                         <p className="text-primary font-semibold text-lg mb-2">
                             ⏰ Disponibilidad
                         </p>
                         <p className="text-foreground/70">
-                            {CONTACT.availability}
+                            {contact.availability}
                         </p>
                     </div>
                 </div>
 
                 <p className="text-foreground/50 text-sm mt-12 text-center">
-                    {FOOTER_NOTE}
+                    {footer}
                 </p>
+                <div className="text-foreground/50 text-sm mt-2 text-center">
+                    Powered by{" "}
+                    <a
+                        href="https://kleincode.studio/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                    >
+                        Klein Code
+                    </a>
+                </div>
             </div>
         </section>
     );

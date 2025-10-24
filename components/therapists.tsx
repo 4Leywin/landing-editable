@@ -1,11 +1,12 @@
 "use client";
 
 import { useInView } from "react-intersection-observer";
+import { useEffect, useState } from "react";
+import { getById } from "@/services/firebase/content";
 
 export default function Therapists() {
     const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
-
-    const therapists = [
+    const [therapists, setTherapists] = useState<any[]>([
         {
             name: "Valentina",
             specialty: "Masaje Tántrico Clásico",
@@ -24,7 +25,23 @@ export default function Therapists() {
             image: "/placeholder.svg?height=400&width=300",
             bio: "Especialista en despertar sensorial y presencia plena.",
         },
-    ];
+    ]);
+
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const data = await getById<any>("therapists", "main");
+                if (!mounted) return;
+                setTherapists(data?.THERAPISTS ?? therapists);
+            } catch (e) {
+                // keep fallback
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     return (
         <section id="therapists" className="py-24 px-4 bg-background" ref={ref}>
@@ -43,7 +60,7 @@ export default function Therapists() {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {therapists.map((therapist, idx) => (
+                    {therapists.map((therapist: any, idx: number) => (
                         <div
                             key={idx}
                             className={`group cursor-pointer transition-all duration-500 ${

@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import { db } from "@/services/firebase/client";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import toast from "react-hot-toast";
 
 export default function ContactTab() {
     const [contact, setContact] = useState<any>({ ...DEFAULT_CONTENT.CONTACT });
-    const [message, setMessage] = useState<string | null>(null);
 
     useEffect(() => {
         let mounted = true;
@@ -30,9 +30,9 @@ export default function ContactTab() {
     async function saveSection() {
         try {
             await setDoc(doc(db, "contact", "main"), { CONTACT: contact });
-            setMessage("Contacto guardado");
+            toast.success("Contacto guardado");
         } catch (err: any) {
-            setMessage(
+            toast.error(
                 "Error guardando contacto: " + (err.message || String(err))
             );
         }
@@ -40,18 +40,19 @@ export default function ContactTab() {
 
     function restoreDefaults() {
         setContact(DEFAULT_CONTENT.CONTACT);
-        setMessage("Contacto restaurado a defaults (aún no guardado)");
+        toast("Contacto restaurado a defaults (aún no guardado)");
     }
 
     // Persistir cambios inmediatos al actualizar campos
     useEffect(() => {
         // debounce simple para no spamear escrituras en cada tecla
         const t = setTimeout(() => {
-            setDoc(doc(db, "contact", "main"), { CONTACT: contact })
-                .then(() => setMessage("Contacto actualizado"))
-                .catch((e) =>
-                    setMessage("Error actualizando contacto: " + String(e))
-                );
+            // autosave: write silently (no toast on success) to avoid spamming on every keystroke
+            setDoc(doc(db, "contact", "main"), { CONTACT: contact }).catch(
+                (e) =>
+                    // only surface errors to the user
+                    toast.error("Error actualizando contacto: " + String(e))
+            );
         }, 400);
         return () => clearTimeout(t);
     }, [contact]);
@@ -98,7 +99,7 @@ export default function ContactTab() {
                     Restaurar defaults
                 </button>
             </div>
-            {message && <p className="mt-2 text-sm">{message}</p>}
+            {/* feedback via react-hot-toast */}
         </section>
     );
 }

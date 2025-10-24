@@ -1,19 +1,16 @@
-import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { HERO as HERO_FALLBACK } from "../lib/content";
-import { useContent } from "../lib/useContent";
+import { getById } from "@/services/firebase/content";
 
-export default function Hero() {
-    const { content, loading } = useContent();
-    const [isLoaded, setIsLoaded] = useState(false);
-    const isMobile = useIsMobile();
-
-    useEffect(() => {
-        setIsLoaded(true);
-    }, []);
-
-    const HERO = content && content.HERO ? content.HERO : HERO_FALLBACK;
+export default async function Hero() {
+    let HERO: any = HERO_FALLBACK;
+    try {
+        const data = await getById<any>("hero", "main");
+        console.log("Fetched HERO data:", data);
+        HERO = data?.HERO ?? HERO_FALLBACK;
+    } catch (e) {
+        HERO = HERO_FALLBACK;
+    }
 
     return (
         <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-12">
@@ -23,26 +20,36 @@ export default function Hero() {
             {/* Content - Video and Text Side by Side */}
             <div className="relative z-10 max-w-7xl mx-auto px-4 w-full">
                 <div
-                    className={`grid md:grid-cols-2 gap-12 items-center transition-all duration-1000 ${
-                        isLoaded ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`grid md:grid-cols-2 gap-12 md:items-start transition-all duration-1000 opacity-100`}
                 >
-                    {/* Video Section */}
-                    <div className="flex justify-center">
+                    {/* Video / Image Section */}
+                    <div className="flex justify-center md:justify-start">
                         <div
-                            className={`relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl border border-primary/30 ${
-                                isMobile ? "max-w-xs" : "max-w-md"
-                            }`}
+                            className={`relative w-full rounded-2xl overflow-hidden shadow-2xl border border-primary/30 sm:aspect-3/4 md:aspect-square md:max-w-[560px] lg:max-w-[700px]`}
                         >
-                            <video
-                                autoPlay
-                                muted
-                                loop
-                                className="w-full h-full object-cover"
-                                poster="/placeholder.svg?height=720&width=1280"
-                            >
-                                <source src={HERO.videoSrc} type="video/mp4" />
-                            </video>
+                            {HERO?.videoSrc ? (
+                                <video
+                                    autoPlay
+                                    muted
+                                    loop
+                                    className="w-full h-full object-cover object-center"
+                                    poster="/placeholder.svg?height=720&width=1280"
+                                >
+                                    <source
+                                        src={HERO.videoSrc}
+                                        type="video/mp4"
+                                    />
+                                </video>
+                            ) : (
+                                <img
+                                    src={
+                                        HERO?.image ||
+                                        "/placeholder.svg?height=720&width=1280"
+                                    }
+                                    alt={HERO?.title || "hero"}
+                                    className="w-full h-full object-cover object-center"
+                                />
+                            )}
                             {/* Overlay decorativo */}
                             <div className="absolute inset-0 bg-linear-to-t from-background/40 to-transparent" />
                         </div>
@@ -69,9 +76,7 @@ export default function Hero() {
 
                 {/* Scroll Indicator */}
                 <div
-                    className={`absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-1000 ${
-                        isLoaded ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`absolute top-[110%] left-1/2 transform -translate-x-1/2  transition-all duration-1000 opacity-100`}
                 >
                     <div className="animate-bounce">
                         <ChevronDown className="text-primary" size={32} />

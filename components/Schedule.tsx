@@ -1,8 +1,28 @@
 "use client";
 
-import { SCHEDULE } from "../lib/content";
+import { useEffect, useState } from "react";
+import { SCHEDULE as SCHEDULE_FALLBACK } from "../lib/content";
+import { getById } from "@/services/firebase/content";
 
 export default function Schedule() {
+    const [schedule, setSchedule] = useState<any[]>([...SCHEDULE_FALLBACK]);
+
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const data = await getById<any>("schedule", "main");
+                if (!mounted) return;
+                setSchedule(data?.SCHEDULE ?? SCHEDULE_FALLBACK);
+            } catch (e) {
+                setSchedule(SCHEDULE_FALLBACK);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
+
     return (
         <section id="schedule" className="py-20 px-4 bg-background">
             <div className="max-w-4xl mx-auto text-center">
@@ -14,7 +34,7 @@ export default function Schedule() {
                 </h2>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                    {SCHEDULE.map((s) => (
+                    {schedule.map((s: any) => (
                         <div
                             key={s.id}
                             className="p-6 border border-border rounded-lg bg-background/50"

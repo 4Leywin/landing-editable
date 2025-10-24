@@ -5,41 +5,57 @@ import HeroTab from "../../components/admin/HeroTab";
 import NavTab from "../../components/admin/NavTab";
 import BenefitsTab from "../../components/admin/BenefitsTab";
 import ContactTab from "../../components/admin/ContactTab";
+import CtasTab from "../../components/admin/CtasTab";
 import GalleryTab from "../../components/admin/GalleryTab";
+import PricesTab from "../../components/admin/PricesTab";
+import FaqsTab from "../../components/admin/FaqsTab";
+import Faqs2Tab from "../../components/admin/Faqs2Tab";
+import TestimonialsTab from "../../components/admin/TestimonialsTab";
+import TherapistsTab from "../../components/admin/TherapistsTab";
 import { auth } from "@/services/firebase/client";
+import ToastClient from "@/components/toast.client";
 
 export default function AdminPage() {
-    const [content, setContent] = useState<any>(DEFAULT_CONTENT);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<
-        "site" | "hero" | "nav" | "benefits" | "contact" | "gallery"
-    >("site");
+        | "hero"
+        | "nav"
+        | "benefits"
+        | "contact"
+        | "ctas"
+        | "gallery"
+        | "prices"
+        | "faqs1"
+        | "faqs2"
+        | "testimonials"
+        | "therapists"
+    >("hero");
 
     useEffect(() => {
-        let mounted = true;
-        async function load() {
-            try {
-                const res = await fetch("/api/content");
-                if (!res.ok) throw new Error("no content api");
-                const json = await res.json();
-                if (!mounted) return;
-                const merged = { ...DEFAULT_CONTENT, ...json };
-                setContent(merged);
-            } catch (err) {
-                // fallback to defaults
-                setContent(DEFAULT_CONTENT);
-            } finally {
-                if (mounted) setLoading(false);
+        // Escuchar cambios en la autenticación
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
             }
-        }
-        load();
-        return () => {
-            mounted = false;
-        };
-    }, []);
-    console.log("Current user:", auth.currentUser);
+            setLoading(false); // Solo aquí, después de determinar el estado real
+        });
 
+        // Cleanup
+        return () => unsubscribe();
+    }, []);
+
+    // Pantalla de carga
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-6">
+                <p>Cargando...</p>
+            </div>
+        );
+    }
     return (
         <div className="min-h-screen bg-background text-foreground p-6">
             <div className="max-w-7xl mx-auto">
@@ -52,54 +68,59 @@ export default function AdminPage() {
                     "Guardar en servidor" para persistir.
                 </p>
 
-                <div>
-                    {/* Tabs */}
-                    <div className="mb-4 flex gap-2 flex-wrap">
-                        {[
-                            ["hero", "Hero"],
-                            ["nav", "Navegación"],
-                            ["benefits", "Beneficios"],
-                            ["contact", "Contacto"],
-                            ["gallery", "Galería"],
-                        ].map(([key, label]) => (
-                            <button
-                                key={key}
-                                onClick={() => setActiveTab(key as any)}
-                                className={`px-3 py-1 rounded ${
-                                    activeTab === key
-                                        ? "bg-primary text-background"
-                                        : "border"
-                                }`}
-                            >
-                                {label}
-                            </button>
-                        ))}
+                {/* Tabs */}
+                <div className="mb-4 flex gap-2 flex-wrap">
+                    {[
+                        ["hero", "Hero"],
+                        ["benefits", "Beneficios"],
+                        ["contact", "Contacto"],
+                        ["ctas", "CTA"],
+                        ["gallery", "Galería"],
+                        ["prices", "Precios"],
+                        ["faqs1", "Preguntas (FAQS 1)"],
+                        ["faqs2", "Preguntas (FAQS 2)"],
+                        ["testimonials", "Testimonios"],
+                    ].map(([key, label]) => (
+                        <button
+                            key={key}
+                            onClick={() => setActiveTab(key as any)}
+                            className={`px-3 py-1 rounded ${
+                                activeTab === key
+                                    ? "bg-primary text-background"
+                                    : "border"
+                            }`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="grid gap-6">
+                    {activeTab === "hero" && <HeroTab />}
+                    {activeTab === "benefits" && <BenefitsTab />}
+                    {activeTab === "contact" && <ContactTab />}
+                    {activeTab === "ctas" && <CtasTab />}
+                    {activeTab === "gallery" && <GalleryTab />}
+                    {activeTab === "prices" && <PricesTab />}
+                    {activeTab === "faqs1" && <FaqsTab />}
+                    {activeTab === "faqs2" && <Faqs2Tab />}
+                    {activeTab === "testimonials" && <TestimonialsTab />}
+                    {activeTab === "therapists" && <TherapistsTab />}
+
+                    <div className="mt-2 text-sm text-foreground/70">
+                        Usa los botones "Guardar sección" dentro de cada pestaña
+                        para persistir sólo esa sección, o restaura defaults por
+                        sección con "Restaurar defaults".
                     </div>
 
-                    <div className="grid gap-6">
-                        <div>
-                            {activeTab === "hero" && <HeroTab />}
-                            {activeTab === "nav" && <NavTab />}
-                            {activeTab === "benefits" && <BenefitsTab />}
-                            {activeTab === "contact" && <ContactTab />}
-                            {activeTab === "gallery" && <GalleryTab />}
-
-                            <div className="mt-2 text-sm text-foreground/70">
-                                Usa los botones "Guardar sección" dentro de cada
-                                pestaña para persistir sólo esa sección, o
-                                restaura defaults por sección con "Restaurar
-                                defaults".
-                            </div>
-
-                            {message && (
-                                <p className="mt-3 text-sm text-foreground/80">
-                                    {message}
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                    {message && (
+                        <p className="mt-3 text-sm text-foreground/80">
+                            {message}
+                        </p>
+                    )}
                 </div>
             </div>
+            <ToastClient />
         </div>
     );
 }

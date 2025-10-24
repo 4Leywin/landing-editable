@@ -1,8 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
-import { RESOURCES, GALLERY_NOTE } from "../lib/content";
+import { useState, useRef, useEffect } from "react";
+import {
+    RESOURCES as RESOURCES_FALLBACK,
+    GALLERY_NOTE as GALLERY_NOTE_FALLBACK,
+} from "../lib/content";
+import { getById } from "@/services/firebase/content";
 
 export default function Gallery() {
     const [selected, setSelected] = useState<{
@@ -15,6 +19,28 @@ export default function Gallery() {
         setExpandedMap((prev) => ({ ...prev, [id]: !prev[id] }));
     };
     const listRef = useRef<HTMLDivElement | null>(null);
+    const [resources, setResources] = useState<any[]>([...RESOURCES_FALLBACK]);
+    const [galleryNote, setGalleryNote] = useState<string>(
+        GALLERY_NOTE_FALLBACK
+    );
+
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const data = await getById<any>("resources", "main");
+                if (!mounted) return;
+                setResources(data?.RESOURCES ?? RESOURCES_FALLBACK);
+                setGalleryNote(data?.GALLERY_NOTE ?? GALLERY_NOTE_FALLBACK);
+            } catch (e) {
+                setResources(RESOURCES_FALLBACK);
+                setGalleryNote(GALLERY_NOTE_FALLBACK);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     return (
         <section id="gallery" className="py-20 px-4 bg-background">
@@ -26,7 +52,7 @@ export default function Gallery() {
                     <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground">
                         Fotos reales y mini videos
                     </h2>
-                    <p className="text-foreground/60 mt-2">{GALLERY_NOTE}</p>
+                    <p className="text-foreground/60 mt-2">{galleryNote}</p>
                 </div>
 
                 {/* Mobile carousel */}
@@ -37,14 +63,14 @@ export default function Gallery() {
                             className="overflow-x-auto snap-x snap-mandatory flex gap-4 pb-4"
                             role="list"
                         >
-                            {RESOURCES.map((r) => (
+                            {resources.map((r) => (
                                 <article
                                     key={r.id}
                                     role="listitem"
                                     className="shrink-0 w-[80%] sm:w-[60%] snap-center"
                                 >
                                     <div className="rounded-lg overflow-hidden bg-background/50 border border-border">
-                                        <div className="relative h-56 sm:h-72">
+                                        <div className="relative h-96 sm:h-[25rem]">
                                             {r.type === "image" ? (
                                                 <Image
                                                     src={r.src}
@@ -89,7 +115,7 @@ export default function Gallery() {
                                                 }`}
                                             >
                                                 {/* subtle gradient to darken image on hover/tap */}
-                                                <div className="absolute inset-0 bg-linear-to-t from-black/10 via-black/20 to-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/50 to-black/10 group-hover:opacity-100 group-hover:bg-blue-300 transition-opacity duration-300"></div>
 
                                                 <div
                                                     className={`absolute left-0 right-0 bottom-0 p-4 text-white transform transition-all duration-300 ${
@@ -140,7 +166,7 @@ export default function Gallery() {
                                                                                     }
                                                                                     className="flex justify-between items-baseline"
                                                                                 >
-                                                                                    <span className="text-foreground/40 capitalize">
+                                                                                    <span className="text-white capitalize">
                                                                                         {k.replace(
                                                                                             /_/g,
                                                                                             " "
@@ -234,12 +260,12 @@ export default function Gallery() {
 
                 {/* Desktop grid */}
                 <div className="hidden md:grid md:grid-cols-3 gap-6">
-                    {RESOURCES.map((r) => (
+                    {resources.map((r: any) => (
                         <article
                             key={r.id}
                             className="rounded-lg overflow-hidden bg-background/50 border border-border"
                         >
-                            <div className="relative h-64">
+                            <div className="relative h-64 sm:h-[28rem]">
                                 {r.type === "image" ? (
                                     <Image
                                         src={r.src}
@@ -260,6 +286,7 @@ export default function Gallery() {
                                         muted
                                         playsInline
                                         loop
+                                        autoPlay
                                         onClick={() =>
                                             setSelected({
                                                 src: r.src,
@@ -300,7 +327,7 @@ export default function Gallery() {
                                                                         key={k}
                                                                         className="flex justify-between items-baseline"
                                                                     >
-                                                                        <span className="text-foreground/40 capitalize">
+                                                                        <span className="text-white capitalize">
                                                                             {k.replace(
                                                                                 /_/g,
                                                                                 " "

@@ -2,20 +2,34 @@
 
 import { useInView } from "react-intersection-observer";
 import { Heart, Zap, Compass } from "lucide-react";
-import { useContent } from "../lib/useContent";
+import { useEffect, useState } from "react";
 import { BENEFITS as BENEFITS_FALLBACK } from "../lib/content";
+import { getById } from "@/services/firebase/content";
 
 export default function Experience() {
     const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
-    const { content } = useContent();
+    const [benefits, setBenefits] = useState<any[]>([...BENEFITS_FALLBACK]);
 
-    const benefits =
-        content && content.BENEFITS ? content.BENEFITS : BENEFITS_FALLBACK;
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const data = await getById<any>("benefits", "main");
+                if (!mounted) return;
+                setBenefits(data?.BENEFITS ?? BENEFITS_FALLBACK);
+            } catch (e) {
+                setBenefits(BENEFITS_FALLBACK);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     const experiences = [
-        { icon: Heart, ...benefits[0] },
-        { icon: Zap, ...benefits[1] },
-        { icon: Compass, ...benefits[2] },
+        { icon: Heart, ...(benefits[0] ?? BENEFITS_FALLBACK[0]) },
+        { icon: Zap, ...(benefits[1] ?? BENEFITS_FALLBACK[1]) },
+        { icon: Compass, ...(benefits[2] ?? BENEFITS_FALLBACK[2]) },
     ];
 
     return (
