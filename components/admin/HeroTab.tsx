@@ -15,6 +15,7 @@ export default function HeroTab() {
                 const snap = await getDoc(doc(db, "hero", "main"));
                 const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
+                console.log("Loaded HERO data:", data);
                 setHero(data?.HERO ?? DEFAULT_CONTENT.HERO);
             } catch (err) {
                 setHero(DEFAULT_CONTENT.HERO);
@@ -76,7 +77,7 @@ export default function HeroTab() {
             <div className="flex gap-2 mt-3">
                 <button
                     onClick={saveSection}
-                    className="px-3 py-2 bg-primary text-background rounded "
+                    className="px-3 py-2 bg-primary text-background rounded hover:scale-105 transition-transform active:scale-95 duration-1000"
                 >
                     Guardar sección
                 </button>

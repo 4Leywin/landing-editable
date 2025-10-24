@@ -1,17 +1,14 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useRef } from "react";
 
-import { FAQS } from "../../lib/content";
+import DEFAULT_CONTENT from "../../lib/content";
 
 export default function InstalacionesSection() {
     const { ref, inView } = useInView({ threshold: 0.15, triggerOnce: true });
-    const [videoSrc, setVideoSrc] = useState<string>(
-        "/placeholder-instalaciones.mp4"
-    );
-    const [posterSrc, setPosterSrc] = useState<string>(
-        "/placeholder-instalaciones.jpg"
-    );
+    const [videoSrc, setVideoSrc] = useState<string>("");
+    const [posterSrc, setPosterSrc] = useState<string>("/placeholder.jpg");
     const [isMobile, setIsMobile] = useState<boolean>(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [showPlayOverlay, setShowPlayOverlay] = useState(false);
@@ -22,11 +19,13 @@ export default function InstalacionesSection() {
             const mobile = window.innerWidth <= 768;
             setIsMobile(mobile);
             if (mobile) {
-                setVideoSrc("/placeholder-instalaciones-mobile.mp4");
-                setPosterSrc("/placeholder-instalaciones-mobile.jpg");
+                // no mobile video placeholder available in /public, use image fallback
+                setVideoSrc("");
+                setPosterSrc("/placeholder.jpg");
             } else {
-                setVideoSrc("/placeholder-instalaciones.mp4");
-                setPosterSrc("/placeholder-instalaciones.jpg");
+                // no desktop video placeholder available in /public, use image fallback
+                setVideoSrc("");
+                setPosterSrc("/placeholder.jpg");
             }
         }
         update();
@@ -73,20 +72,28 @@ export default function InstalacionesSection() {
                                 isMobile ? "h-[60vh]" : "h-[520px]"
                             } lg:h-[720px]`}
                         >
-                            <video
-                                ref={videoRef}
-                                className={`absolute inset-0 w-full h-full object-cover`}
-                                controls
-                                playsInline
-                                muted
-                                loop
-                                autoPlay
-                                preload="metadata"
-                                poster={posterSrc}
-                            >
-                                <source src={videoSrc} type="video/mp4" />
-                                Tu navegador no soporta video.
-                            </video>
+                            {videoSrc ? (
+                                <video
+                                    ref={videoRef}
+                                    className={`absolute inset-0 w-full h-full object-cover`}
+                                    controls
+                                    playsInline
+                                    muted
+                                    loop
+                                    autoPlay
+                                    preload="metadata"
+                                    poster={posterSrc}
+                                >
+                                    <source src={videoSrc} type="video/mp4" />
+                                    Tu navegador no soporta video.
+                                </video>
+                            ) : (
+                                <img
+                                    src={posterSrc}
+                                    alt="placeholder"
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                            )}
 
                             {showPlayOverlay && (
                                 <button
@@ -125,7 +132,7 @@ export default function InstalacionesSection() {
                     </div>
 
                     <div className="space-y-6">
-                        {FAQS.map((item, idx) => (
+                        {(DEFAULT_CONTENT.FAQS_2 || []).map((item, idx) => (
                             <details
                                 key={idx}
                                 className="group bg-background/50 border border-border rounded-lg p-5"

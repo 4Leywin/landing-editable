@@ -87,7 +87,7 @@ export default function ContactTab() {
             <div className="flex gap-2 mt-3">
                 <button
                     onClick={saveSection}
-                    className="px-3 py-2 bg-secondary text-background rounded"
+                    className="px-3 py-2 bg-primary text-background rounded hover:scale-105 transition-transform active:scale-95 duration-1000"
                 >
                     Guardar sección
                 </button>

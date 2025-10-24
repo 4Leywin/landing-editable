@@ -1,13 +1,16 @@
 "use client";
 import React from "react";
 import { firebaseService } from "@/services/firebase/auth";
+import { useRouter } from "next/navigation";
 const Login = () => {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const router = useRouter();
     const handleLogin = async () => {
         try {
             const user = await firebaseService.loginUser(email, password);
             console.log("Logged in user:", user);
+            router.push("/admin");
         } catch (error) {
             console.error("Login error:", error);
         }
@@ -48,7 +51,7 @@ const Login = () => {
                 </div>
                 <button
                     onClick={handleLogin}
-                    className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                    className="w-full bg-primary text-white p-2 rounded hover:bg-blue-700"
                 >
                     Iniciar Sesión
                 </button>

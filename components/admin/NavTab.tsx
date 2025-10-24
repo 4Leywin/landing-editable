@@ -113,7 +113,7 @@ export default function NavTab() {
                 </button>
                 <button
                     onClick={saveSection}
-                    className="px-3 py-2 bg-secondary text-background rounded"
+                    className="px-3 py-2 bg-primary text-background rounded hover:scale-105 transition-transform active:scale-95 duration-1000 cursor-pointer"
                 >
                     Guardar sección
                 </button>
