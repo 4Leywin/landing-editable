@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { NAV_ITEMS as NAV_FALLBACK } from "../lib/content";
+import { getById } from "@/services/firebase/content";
 
 type NavItem = { label: string; href: string };
 
@@ -14,12 +15,32 @@ export default function Navigation({
 }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [siteName, setSiteName] = useState("Luxury Star Spa");
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 50);
         handleScroll();
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    // Cargar nombre del sitio desde Firebase
+    useEffect(() => {
+        let mounted = true;
+        (async () => {
+            try {
+                const data = await getById<any>("site", "main");
+                if (!mounted) return;
+                if (data?.SITE_NAME) {
+                    setSiteName(data.SITE_NAME);
+                }
+            } catch (e) {
+                console.warn("Error loading site name from Firebase", e);
+            }
+        })();
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     const navItems: NavItem[] =
@@ -40,13 +61,8 @@ export default function Navigation({
                 <div className="flex justify-between items-center h-20 px-4">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                            <span className="text-background font-serif font-bold text-lg">
-                                ✦
-                            </span>
-                        </div>
                         <span className="font-serif text-xl font-bold text-primary hidden sm:inline">
-                            Ritual Dorado
+                            {siteName}
                         </span>
                     </Link>
 
@@ -64,11 +80,11 @@ export default function Navigation({
                     </div>
 
                     {/* CTA Button */}
-                    <div className="hidden md:block">
+                    {/* <div className="hidden md:block">
                         <button className="px-6 py-2 bg-primary text-background font-semibold rounded-full hover:bg-primary-dark transition-colors cursor-pointer">
                             Agendar
                         </button>
-                    </div>
+                    </div> */}
 
                     {/* Mobile Menu Button */}
                     <button

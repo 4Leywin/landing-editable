@@ -15,6 +15,7 @@ import Faq1MediaTab from "../../components/admin/Faq1MediaTab";
 import Faq2MediaTab from "../../components/admin/Faq2MediaTab";
 import TestimonialsTab from "../../components/admin/TestimonialsTab";
 import ScheduleTab from "../../components/admin/ScheduleTab";
+import SiteTab from "../../components/admin/SiteTab";
 import { auth } from "@/services/firebase/client";
 import ToastClient from "@/components/toast.client";
 
@@ -23,6 +24,7 @@ export default function AdminPage() {
     const [message, setMessage] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<
+        | "site"
         | "hero"
         | "hero_media"
         | "nav"
@@ -38,7 +40,7 @@ export default function AdminPage() {
         | "testimonials"
         | "therapists"
         | "schedule"
-    >("hero");
+    >("site");
 
     useEffect(() => {
         // Escuchar cambios en la autenticación
@@ -78,6 +80,7 @@ export default function AdminPage() {
                 {/* Tabs */}
                 <div className="mb-4 flex gap-2 flex-wrap">
                     {[
+                        ["site", "Sitio"],
                         ["hero", "Hero"],
                         ["hero_media", "Hero — Media"],
                         ["benefits", "Beneficios"],
@@ -107,6 +110,7 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid gap-6">
+                    {activeTab === "site" && <SiteTab />}
                     {activeTab === "hero" && <HeroTab />}
                     {activeTab === "hero_media" && <HeroMediaTab />}
                     {activeTab === "benefits" && <BenefitsTab />}
