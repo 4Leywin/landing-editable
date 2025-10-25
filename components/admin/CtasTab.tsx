@@ -11,6 +11,7 @@ export default function CtasTab() {
         DEFAULT_CONTENT.FOOTER_NOTE || ""
     );
     const [loading, setLoading] = useState(true);
+    const [showInactive, setShowInactive] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -45,11 +46,24 @@ export default function CtasTab() {
     }
 
     function addCta() {
-        setCtas([...ctas, { label: "Nuevo CTA", url: "#" }]);
+        setCtas([...ctas, { label: "Nuevo CTA", url: "#", active: true }]);
     }
 
     function removeCta(idx: number) {
-        setCtas(ctas.filter((_, i) => i !== idx));
+        const newItems = ctas.filter((_, i) => i !== idx);
+        setCtas(newItems);
+    }
+
+    function toggleActive(idx: number) {
+        const copy = [...ctas];
+        copy[idx] = {
+            ...copy[idx],
+            active: copy[idx].active === false ? true : false,
+        };
+        setCtas(copy);
+        setDoc(doc(db, "ctas", "main"), { CTAS: copy }).catch((e) =>
+            toast.error("Error actualizando CTA: " + String(e))
+        );
     }
 
     async function saveSection() {
@@ -74,39 +88,71 @@ export default function CtasTab() {
 
     if (loading) return <div className="p-4">Cargando CTA...</div>;
 
+    const inactiveCount = ctas.filter((c) => c.active === false).length;
+    const visible = ctas
+        .map((c, i) => ({ ...c, _idx: i }))
+        .filter((c) => (showInactive ? true : c.active !== false));
+
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">
             <h2 className="font-semibold mb-3">CTA — Botones y Footer</h2>
 
+            <div className="mb-3">
+                <button
+                    onClick={() => setShowInactive((s) => !s)}
+                    className="px-3 py-2 border rounded text-sm"
+                >
+                    {showInactive
+                        ? `Ocultar inactivos (${inactiveCount})`
+                        : `Mostrar inactivos (${inactiveCount})`}
+                </button>
+            </div>
+
             <div className="space-y-4">
-                {ctas.map((c: any, idx: number) => (
-                    <div key={idx} className="p-3 border rounded">
-                        <label className="block text-sm">Etiqueta</label>
-                        <input
-                            value={c.label}
-                            onChange={(e) =>
-                                updateCta(idx, "label", e.target.value)
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-                        <label className="block text-sm">URL</label>
-                        <input
-                            value={c.url}
-                            onChange={(e) =>
-                                updateCta(idx, "url", e.target.value)
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => removeCta(idx)}
-                                className="px-3 py-2 border rounded"
-                            >
-                                Eliminar
-                            </button>
+                {visible.map((c: any) => {
+                    const idx = c._idx;
+                    return (
+                        <div
+                            key={c.id || idx}
+                            className={`p-3 border rounded ${
+                                c.active === false ? "opacity-50 grayscale" : ""
+                            }`}
+                        >
+                            <label className="block text-sm">Etiqueta</label>
+                            <input
+                                value={c.label}
+                                onChange={(e) =>
+                                    updateCta(idx, "label", e.target.value)
+                                }
+                                className="w-full p-2 rounded border mb-2"
+                            />
+                            <label className="block text-sm">URL</label>
+                            <input
+                                value={c.url}
+                                onChange={(e) =>
+                                    updateCta(idx, "url", e.target.value)
+                                }
+                                className="w-full p-2 rounded border mb-2"
+                            />
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => removeCta(idx)}
+                                    className="px-3 py-2 border rounded"
+                                >
+                                    Eliminar
+                                </button>
+                                <button
+                                    onClick={() => toggleActive(idx)}
+                                    className="px-3 py-2 border rounded"
+                                >
+                                    {c.active === false
+                                        ? "Activar"
+                                        : "Desactivar"}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div className="mt-3">

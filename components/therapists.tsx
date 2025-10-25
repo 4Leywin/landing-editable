@@ -43,6 +43,7 @@ export default function Therapists() {
         };
     }, []);
 
+    const visibleTherapists = therapists.filter((t) => t.active !== false);
     return (
         <section id="therapists" className="py-24 px-4 bg-background" ref={ref}>
             <div className="max-w-6xl mx-auto">
@@ -60,7 +61,7 @@ export default function Therapists() {
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    {therapists.map((therapist: any, idx: number) => (
+                    {visibleTherapists.map((therapist: any, idx: number) => (
                         <div
                             key={idx}
                             className={`group cursor-pointer transition-all duration-500 ${
