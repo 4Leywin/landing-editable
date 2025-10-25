@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { getById } from "@/services/firebase/content";
 import { useInView } from "react-intersection-observer";
 import { useRef } from "react";
 
@@ -13,25 +14,76 @@ export default function InstalacionesSection() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [showPlayOverlay, setShowPlayOverlay] = useState(false);
 
+    const [faqs, setFaqs] = useState<any[]>([
+        ...(DEFAULT_CONTENT.FAQS_2 || []),
+    ]);
+    const [media, setMedia] = useState<any>({
+        ...(DEFAULT_CONTENT.FAQ2_MEDIA || {}),
+    });
+
+    useEffect(() => {
+        async function load() {
+            try {
+                const doc = await getById<any>("faq2", "main");
+                if (doc) {
+                    let items =
+                        doc.FAQS_2 ?? doc.faqs ?? DEFAULT_CONTENT.FAQS_2;
+                    if (Array.isArray(items))
+                        items = (items as any[]).filter(
+                            (f: any) => f.active !== false
+                        );
+                    setFaqs(items ?? DEFAULT_CONTENT.FAQS_2);
+                }
+            } catch (err) {
+                setFaqs(DEFAULT_CONTENT.FAQS_2);
+            }
+
+            try {
+                const mdoc = await getById<any>("faq2_media", "main");
+                const m = mdoc?.MEDIA ?? DEFAULT_CONTENT.FAQ2_MEDIA;
+                setMedia(m);
+                if (m?.type === "video") {
+                    setVideoSrc(m.src || "");
+                    setPosterSrc("/placeholder.jpg");
+                } else if (m?.type === "image") {
+                    setVideoSrc("");
+                    setPosterSrc(m.src || "/placeholder.jpg");
+                }
+            } catch (err) {
+                setMedia(DEFAULT_CONTENT.FAQ2_MEDIA);
+                setVideoSrc("");
+                setPosterSrc("/placeholder.jpg");
+            }
+        }
+        load();
+    }, []);
+
     useEffect(() => {
         function update() {
             if (typeof window === "undefined") return;
             const mobile = window.innerWidth <= 768;
             setIsMobile(mobile);
             if (mobile) {
-                // no mobile video placeholder available in /public, use image fallback
-                setVideoSrc("");
-                setPosterSrc("/placeholder.jpg");
+                // mobile: if media is image, show as poster; if video and mobile, try not to autoplay
+                if (media?.type === "image") {
+                    setVideoSrc("");
+                    setPosterSrc(media.src || "/placeholder.jpg");
+                }
             } else {
-                // no desktop video placeholder available in /public, use image fallback
-                setVideoSrc("");
-                setPosterSrc("/placeholder.jpg");
+                // desktop
+                if (media?.type === "video") {
+                    setVideoSrc(media.src || "");
+                    setPosterSrc("/placeholder.jpg");
+                } else if (media?.type === "image") {
+                    setVideoSrc("");
+                    setPosterSrc(media.src || "/placeholder.jpg");
+                }
             }
         }
         update();
         window.addEventListener("resize", update);
         return () => window.removeEventListener("resize", update);
-    }, []);
+    }, [media]);
 
     useEffect(() => {
         async function tryAutoplay() {
@@ -88,6 +140,7 @@ export default function InstalacionesSection() {
                                     Tu navegador no soporta video.
                                 </video>
                             ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={posterSrc}
                                     alt="placeholder"
@@ -132,7 +185,7 @@ export default function InstalacionesSection() {
                     </div>
 
                     <div className="space-y-6">
-                        {(DEFAULT_CONTENT.FAQS_2 || []).map((item, idx) => (
+                        {(faqs || []).map((item, idx) => (
                             <details
                                 key={idx}
                                 className="group bg-background/50 border border-border rounded-lg p-5"

@@ -97,6 +97,14 @@ export function getPrices() {
     return [...((DEFAULT_CONTENT as any).PRICES ?? [])];
 }
 
+export function getFaq1Media() {
+    return { ...((DEFAULT_CONTENT as any).FAQ1_MEDIA ?? {}) };
+}
+
+export function getFaq2Media() {
+    return { ...((DEFAULT_CONTENT as any).FAQ2_MEDIA ?? {}) };
+}
+
 // --- Seeders por sección ---
 export function seedHero(options?: {
     saveFn?: (payload: any) => Promise<void> | void;
@@ -190,6 +198,26 @@ export function seedPrices(options?: {
     return runSave("PRICES", getPrices(), options);
 }
 
+export function seedFaq1Media(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    // write payload { MEDIA: {...} } into collection 'faq1_media' (doc 'main')
+    return runSave("MEDIA", getFaq1Media(), {
+        ...(options ?? {}),
+        collectionName: "faq1_media",
+    });
+}
+
+export function seedFaq2Media(options?: {
+    saveFn?: (payload: any) => Promise<void> | void;
+}) {
+    // write payload { MEDIA: {...} } into collection 'faq2_media' (doc 'main')
+    return runSave("MEDIA", getFaq2Media(), {
+        ...(options ?? {}),
+        collectionName: "faq2_media",
+    });
+}
+
 // Ejecuta todos los seeders en orden. Opcionalmente se puede pasar saveFn que se llamará para cada sección.
 export async function seedAll(options?: {
     saveFn?: (payload: any) => Promise<void> | void;
@@ -210,6 +238,8 @@ export async function seedAll(options?: {
     results.SITE = await seedSite(options);
     results.FOOTER_NOTE = await seedFooterNote(options);
     results.PRICES = await seedPrices(options);
+    results.FAQ1_MEDIA = await seedFaq1Media(options);
+    results.FAQ2_MEDIA = await seedFaq2Media(options);
 
     return results;
 }

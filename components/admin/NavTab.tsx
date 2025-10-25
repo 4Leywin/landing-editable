@@ -10,6 +10,7 @@ export default function NavTab() {
         ...DEFAULT_CONTENT.NAV_ITEMS,
     ]);
     const [loading, setLoading] = useState(true);
+    const [showInactive, setShowInactive] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -32,7 +33,10 @@ export default function NavTab() {
     }, []);
 
     function addNavItem() {
-        const newItems = [...navItems, { label: "Nuevo", href: "#new" }];
+        const newItems = [
+            ...navItems,
+            { label: "Nuevo", href: "#new", active: true },
+        ];
         setNavItems(newItems);
         setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
             .then(() => toast.success("Navegación actualizada"))
@@ -61,6 +65,20 @@ export default function NavTab() {
             );
     }
 
+    function toggleActive(idx: number) {
+        const newItems = navItems.map((it, i) =>
+            i === idx
+                ? { ...it, active: it.active === false ? true : false }
+                : it
+        );
+        setNavItems(newItems);
+        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+            .then(() => toast.success("Navegación actualizada"))
+            .catch((e) =>
+                toast.error("Error guardando navegación: " + String(e))
+            );
+    }
+
     async function saveSection() {
         try {
             await setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: navItems });
@@ -77,33 +95,65 @@ export default function NavTab() {
         toast("Navegación restaurada a defaults (aún no guardada)");
     }
 
+    const inactiveCount = (navItems || []).filter(
+        (n) => n && n.active === false
+    ).length;
+    const visibleItems = (navItems || [])
+        .map((n, i) => ({ ...(n || {}), _idx: i }))
+        .filter((n) => (showInactive ? true : n.active !== false));
+
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">
             <h2 className="font-semibold mb-3">Navegación</h2>
-            {navItems.map((n: any, idx: number) => (
-                <div key={idx} className="flex gap-2 items-center mb-2">
-                    <input
-                        value={n.label}
-                        onChange={(e) =>
-                            updateNavItem(idx, "label", e.target.value)
-                        }
-                        className="flex-1 p-2 rounded border"
-                    />
-                    <input
-                        value={n.href}
-                        onChange={(e) =>
-                            updateNavItem(idx, "href", e.target.value)
-                        }
-                        className="w-44 p-2 rounded border"
-                    />
-                    <button
-                        onClick={() => removeNavItem(idx)}
-                        className="px-2 py-1 border rounded"
-                    >
-                        Eliminar
-                    </button>
-                </div>
-            ))}
+            <div className="mb-3">
+                <button
+                    onClick={() => setShowInactive((s) => !s)}
+                    className="px-3 py-2 border rounded text-sm mr-2"
+                >
+                    {showInactive
+                        ? `Ocultar inactivos (${inactiveCount})`
+                        : `Mostrar inactivos (${inactiveCount})`}
+                </button>
+            </div>
+            {visibleItems.map((n: any) => {
+                const idx = n._idx;
+                return (
+                    <div key={idx} className="flex gap-2 items-center mb-2">
+                        <input
+                            value={n.label}
+                            onChange={(e) =>
+                                updateNavItem(idx, "label", e.target.value)
+                            }
+                            className="flex-1 p-2 rounded border"
+                        />
+                        <input
+                            value={n.href}
+                            onChange={(e) =>
+                                updateNavItem(idx, "href", e.target.value)
+                            }
+                            className="w-44 p-2 rounded border"
+                        />
+                        <button
+                            onClick={() => toggleActive(idx)}
+                            className={`px-2 py-1 border rounded mr-2 ${
+                                navItems[idx]?.active === false
+                                    ? "bg-emerald-100"
+                                    : ""
+                            }`}
+                        >
+                            {navItems[idx]?.active === false
+                                ? "Activar"
+                                : "Desactivar"}
+                        </button>
+                        <button
+                            onClick={() => removeNavItem(idx)}
+                            className="px-2 py-1 border rounded"
+                        >
+                            Eliminar
+                        </button>
+                    </div>
+                );
+            })}
             <div className="flex gap-2 mt-2">
                 <button
                     onClick={addNavItem}

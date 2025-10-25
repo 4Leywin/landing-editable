@@ -26,3 +26,46 @@ export async function uploadImageFile(
         throw error;
     }
 }
+
+export async function uploadVideoFile(
+    file: File,
+    folder: string
+): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+    formData.append("folder", folder);
+    try {
+        const response = await fetch(BASE_URL, {
+            method: "POST",
+            body: formData,
+        });
+        if (!response.ok) {
+            throw new Error(`Error uploading video: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.secure_url;
+    } catch (error) {
+        console.error("Error uploading video:", error);
+        throw error;
+    }
+}
+
+export async function deleteFile(publicId: string): Promise<void> {
+    const apiUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/delete_by_token`;
+    const formData = new FormData();
+    formData.append("public_id", publicId);
+    try {
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            body: formData,
+        });
+        if (!response.ok) {
+            throw new Error(`Error deleting file: ${response.statusText}`);
+        }
+    } catch (error) {
+        console.error("Error deleting file:", error);
+        throw error;
+    }
+}

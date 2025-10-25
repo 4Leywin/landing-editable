@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { getById } from "@/services/firebase/content";
 import { useInView } from "react-intersection-observer";
 import DEFAULT_CONTENT from "../../lib/content";
 
@@ -11,25 +12,71 @@ export default function PasarelaSection() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [showPlayOverlay, setShowPlayOverlay] = useState(false);
 
+    const [faqs, setFaqs] = useState<any[]>([...(DEFAULT_CONTENT.FAQS || [])]);
+    const [media, setMedia] = useState<any>({
+        ...(DEFAULT_CONTENT.FAQ1_MEDIA || {}),
+    });
+
+    useEffect(() => {
+        async function load() {
+            try {
+                const doc = await getById<any>("faqs", "main");
+                if (doc) {
+                    let items = doc.FAQS ?? doc.faqs ?? DEFAULT_CONTENT.FAQS;
+                    if (Array.isArray(items))
+                        items = (items as any[]).filter(
+                            (f: any) => f.active !== false
+                        );
+                    setFaqs(items ?? DEFAULT_CONTENT.FAQS);
+                }
+            } catch (err) {
+                setFaqs(DEFAULT_CONTENT.FAQS);
+            }
+
+            try {
+                const mdoc = await getById<any>("faq1_media", "main");
+                const m = mdoc?.MEDIA ?? DEFAULT_CONTENT.FAQ1_MEDIA;
+                setMedia(m);
+                if (m?.type === "video") {
+                    setVideoSrc(m.src || "");
+                    setPosterSrc("/placeholder.jpg");
+                } else if (m?.type === "image") {
+                    setVideoSrc("");
+                    setPosterSrc(m.src || "/placeholder.jpg");
+                }
+            } catch (err) {
+                setMedia(DEFAULT_CONTENT.FAQ1_MEDIA);
+                setVideoSrc("");
+                setPosterSrc("/placeholder.jpg");
+            }
+        }
+        load();
+    }, []);
+
     useEffect(() => {
         function updateSrc() {
             if (typeof window === "undefined") return;
             const mobile = window.innerWidth <= 768;
             setIsMobile(mobile);
             if (mobile) {
-                // no mobile video placeholder available in /public, use image fallback
-                setVideoSrc("");
-                setPosterSrc("/placeholder.jpg");
+                if (media?.type === "image") {
+                    setVideoSrc("");
+                    setPosterSrc(media.src || "/placeholder.jpg");
+                }
             } else {
-                // no desktop video placeholder available in /public, use image fallback
-                setVideoSrc("");
-                setPosterSrc("/placeholder.jpg");
+                if (media?.type === "video") {
+                    setVideoSrc(media.src || "");
+                    setPosterSrc("/placeholder.jpg");
+                } else if (media?.type === "image") {
+                    setVideoSrc("");
+                    setPosterSrc(media.src || "/placeholder.jpg");
+                }
             }
         }
         updateSrc();
         window.addEventListener("resize", updateSrc);
         return () => window.removeEventListener("resize", updateSrc);
-    }, []);
+    }, [media]);
 
     useEffect(() => {
         async function tryAutoplay() {
@@ -82,6 +129,7 @@ export default function PasarelaSection() {
                                     Tu navegador no soporta video.
                                 </video>
                             ) : (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={posterSrc}
                                     alt="placeholder"
@@ -123,7 +171,7 @@ export default function PasarelaSection() {
                     </div>
 
                     <div className="space-y-6">
-                        {(DEFAULT_CONTENT.FAQS || []).map((item, idx) => (
+                        {(faqs || []).map((item, idx) => (
                             <details
                                 key={idx}
                                 className="group bg-background/50 border border-border rounded-lg p-5"

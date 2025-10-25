@@ -17,6 +17,7 @@ function makeId(name = "") {
 export default function PricesTab() {
     const [prices, setPrices] = useState<any[]>([...DEFAULT_CONTENT.PRICES]);
     const [loading, setLoading] = useState(true);
+    const [showInactive, setShowInactive] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -53,12 +54,20 @@ export default function PricesTab() {
             duration: "",
             description: "",
             features: [],
+            active: true,
         };
         setPrices([...prices, newItem]);
     }
 
     function removeItem(idx: number) {
         const copy = prices.filter((_, i) => i !== idx);
+        setPrices(copy);
+    }
+
+    function toggleActive(idx: number) {
+        const copy = prices.map((p, i) =>
+            i === idx ? { ...p, active: p.active === false ? true : false } : p
+        );
         setPrices(copy);
     }
 
@@ -85,84 +94,128 @@ export default function PricesTab() {
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">
             <h2 className="font-semibold mb-3">Precios</h2>
-
+            <div className="mb-3">
+                <button
+                    onClick={() => setShowInactive((s) => !s)}
+                    className="px-3 py-2 border rounded text-sm"
+                >
+                    {showInactive
+                        ? `Ocultar inactivos (${
+                              (prices || []).filter((p) => p.active === false)
+                                  .length
+                          })`
+                        : `Mostrar inactivos (${
+                              (prices || []).filter((p) => p.active === false)
+                                  .length
+                          })`}
+                </button>
+            </div>
             <div className="space-y-4">
-                {prices.map((p, idx) => (
-                    <div key={p.id || idx} className="p-3 border rounded">
-                        <label className="block text-sm">ID</label>
-                        <input
-                            value={p.id}
-                            onChange={(e) =>
-                                updateItem(idx, "id", e.target.value)
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-
-                        <label className="block text-sm">Nombre</label>
-                        <input
-                            value={p.name}
-                            onChange={(e) =>
-                                updateItem(idx, "name", e.target.value)
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-
-                        <label className="block text-sm">Precio</label>
-                        <input
-                            value={p.price}
-                            onChange={(e) =>
-                                updateItem(idx, "price", e.target.value)
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-
-                        <label className="block text-sm">Duración</label>
-                        <input
-                            value={p.duration}
-                            onChange={(e) =>
-                                updateItem(idx, "duration", e.target.value)
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-
-                        <label className="block text-sm">Descripción</label>
-                        <textarea
-                            value={p.description}
-                            onChange={(e) =>
-                                updateItem(idx, "description", e.target.value)
-                            }
-                            rows={2}
-                            className="w-full p-2 rounded border mb-2"
-                        />
-
-                        <label className="block text-sm">
-                            Características (coma-sep)
-                        </label>
-                        <input
-                            value={(p.features || []).join(", ")}
-                            onChange={(e) =>
-                                updateItem(
-                                    idx,
-                                    "features",
-                                    e.target.value
-                                        .split(",")
-                                        .map((s) => s.trim())
-                                        .filter(Boolean)
-                                )
-                            }
-                            className="w-full p-2 rounded border mb-2"
-                        />
-
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => removeItem(idx)}
-                                className="px-3 py-2 border rounded"
+                {(() => {
+                    const visible = (prices || [])
+                        .map((p, i) => ({ ...(p || {}), _idx: i }))
+                        .filter((p) =>
+                            showInactive ? true : p.active !== false
+                        );
+                    return visible.map((p) => {
+                        const idx = p._idx;
+                        return (
+                            <div
+                                key={p.id || idx}
+                                className={`p-3 border rounded ${
+                                    p.active === false
+                                        ? "opacity-50 grayscale"
+                                        : ""
+                                }`}
                             >
-                                Eliminar
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                                <label className="block text-sm">ID</label>
+                                <input
+                                    value={p.id}
+                                    onChange={(e) =>
+                                        updateItem(idx, "id", e.target.value)
+                                    }
+                                    className="w-full p-2 rounded border mb-2"
+                                />
+
+                                <label className="block text-sm">Nombre</label>
+                                <input
+                                    value={p.name}
+                                    onChange={(e) =>
+                                        updateItem(idx, "name", e.target.value)
+                                    }
+                                    className="w-full p-2 rounded border mb-2"
+                                />
+
+                                <label className="block text-sm">Precio</label>
+                                <input
+                                    value={p.price}
+                                    onChange={(e) =>
+                                        updateItem(idx, "price", e.target.value)
+                                    }
+                                    className="w-full p-2 rounded border mb-2"
+                                />
+
+                                <label className="block text-sm">
+                                    Duración
+                                </label>
+                                <input
+                                    value={p.duration}
+                                    onChange={(e) =>
+                                        updateItem(
+                                            idx,
+                                            "duration",
+                                            e.target.value
+                                        )
+                                    }
+                                    className="w-full p-2 rounded border mb-2"
+                                />
+
+                                <label className="block text-sm">
+                                    Descripción
+                                </label>
+                                <textarea
+                                    value={p.description}
+                                    onChange={(e) =>
+                                        updateItem(
+                                            idx,
+                                            "description",
+                                            e.target.value
+                                        )
+                                    }
+                                    rows={2}
+                                    className="w-full p-2 rounded border mb-2"
+                                />
+
+                                <label className="block text-sm">
+                                    Características (coma-sep)
+                                </label>
+                                <input
+                                    value={(p.features || []).join(", ")}
+                                    onChange={(e) =>
+                                        updateItem(
+                                            idx,
+                                            "features",
+                                            e.target.value
+                                                .split(",")
+                                                .map((s) => s.trim())
+                                                .filter(Boolean)
+                                        )
+                                    }
+                                    className="w-full p-2 rounded border mb-2"
+                                />
+
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => removeItem(idx)}
+                                        className="px-3 py-2 border rounded"
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    });
+                })()}
             </div>
 
             <div className="flex gap-2 mt-4">

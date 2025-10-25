@@ -14,9 +14,9 @@ function makeId(name = "") {
     );
 }
 
-export default function TestimonialsTab() {
+export default function ScheduleTab() {
     const [items, setItems] = useState<any[]>([
-        ...(DEFAULT_CONTENT.TESTIMONIALS || []),
+        ...(DEFAULT_CONTENT.SCHEDULE || []),
     ]);
     const [loading, setLoading] = useState(true);
     const [showInactive, setShowInactive] = useState(false);
@@ -25,12 +25,12 @@ export default function TestimonialsTab() {
         let mounted = true;
         async function load() {
             try {
-                const snap = await getDoc(doc(db, "testimonials", "main"));
+                const snap = await getDoc(doc(db, "schedule", "main"));
                 const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
-                setItems(data?.TESTIMONIALS ?? DEFAULT_CONTENT.TESTIMONIALS);
+                setItems(data?.SCHEDULE ?? DEFAULT_CONTENT.SCHEDULE);
             } catch (err) {
-                setItems(DEFAULT_CONTENT.TESTIMONIALS);
+                setItems(DEFAULT_CONTENT.SCHEDULE);
             } finally {
                 if (mounted) setLoading(false);
             }
@@ -48,10 +48,10 @@ export default function TestimonialsTab() {
     }
 
     function addItem() {
-        const id = makeId("t" + items.length);
+        const id = makeId("s" + items.length);
         setItems([
             ...items,
-            { id, name: "Nuevo", age: 30, text: "", rating: 5, active: true },
+            { id, days: "Nuevo", hours: "", note: "", active: true },
         ]);
     }
 
@@ -70,23 +70,23 @@ export default function TestimonialsTab() {
 
     async function saveSection() {
         try {
-            await setDoc(doc(db, "testimonials", "main"), {
-                TESTIMONIALS: items,
+            await setDoc(doc(db, "schedule", "main"), {
+                SCHEDULE: items,
             });
-            toast.success("Testimonials guardados");
+            toast.success("Horario guardado");
         } catch (err: any) {
             toast.error(
-                "Error guardando testimonials: " + (err.message || String(err))
+                "Error guardando horario: " + (err.message || String(err))
             );
         }
     }
 
     function restoreDefaults() {
-        setItems(DEFAULT_CONTENT.TESTIMONIALS);
-        toast("Testimonials restaurados a defaults (aún no guardado)");
+        setItems(DEFAULT_CONTENT.SCHEDULE);
+        toast("Horario restaurado a defaults (aún no guardado)");
     }
 
-    if (loading) return <div className="p-4">Cargando testimonials...</div>;
+    if (loading) return <div className="p-4">Cargando horario...</div>;
     const inactiveCount = (items || []).filter(
         (it) => it && it.active === false
     ).length;
@@ -96,7 +96,7 @@ export default function TestimonialsTab() {
 
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">
-            <h2 className="font-semibold mb-3">Testimonios</h2>
+            <h2 className="font-semibold mb-3">Horario / Schedule</h2>
             <div className="flex gap-2 mb-3">
                 <button
                     onClick={() => setShowInactive((s) => !s)}
@@ -107,6 +107,7 @@ export default function TestimonialsTab() {
                         : `Mostrar inactivos (${inactiveCount})`}
                 </button>
             </div>
+
             <div className="space-y-4">
                 {visibleItems.map((p: any) => {
                     const idx = p._idx;
@@ -121,53 +122,31 @@ export default function TestimonialsTab() {
                                 className="w-full p-2 rounded border mb-2"
                             />
 
-                            <label className="block text-sm">Nombre</label>
+                            <label className="block text-sm">Días (days)</label>
                             <input
-                                value={p.name || ""}
+                                value={p.days || ""}
                                 onChange={(e) =>
-                                    updateItem(idx, "name", e.target.value)
+                                    updateItem(idx, "days", e.target.value)
                                 }
-                                className="w-full p-2 rounded border mb-2"
-                            />
-
-                            <label className="block text-sm">Edad</label>
-                            <input
-                                type="number"
-                                value={p.age ?? ""}
-                                onChange={(e) =>
-                                    updateItem(
-                                        idx,
-                                        "age",
-                                        Number(e.target.value)
-                                    )
-                                }
-                                className="w-full p-2 rounded border mb-2"
-                            />
-
-                            <label className="block text-sm">Texto</label>
-                            <textarea
-                                value={p.text || ""}
-                                onChange={(e) =>
-                                    updateItem(idx, "text", e.target.value)
-                                }
-                                rows={2}
                                 className="w-full p-2 rounded border mb-2"
                             />
 
                             <label className="block text-sm">
-                                Rating (1-5)
+                                Horas (hours)
                             </label>
                             <input
-                                type="number"
-                                min={1}
-                                max={5}
-                                value={p.rating ?? 5}
+                                value={p.hours || ""}
                                 onChange={(e) =>
-                                    updateItem(
-                                        idx,
-                                        "rating",
-                                        Number(e.target.value)
-                                    )
+                                    updateItem(idx, "hours", e.target.value)
+                                }
+                                className="w-full p-2 rounded border mb-2"
+                            />
+
+                            <label className="block text-sm">Nota (note)</label>
+                            <input
+                                value={p.note || ""}
+                                onChange={(e) =>
+                                    updateItem(idx, "note", e.target.value)
                                 }
                                 className="w-full p-2 rounded border mb-2"
                             />
@@ -199,7 +178,7 @@ export default function TestimonialsTab() {
 
             <div className="flex gap-2 mt-4">
                 <button onClick={addItem} className="px-3 py-2 border rounded">
-                    Añadir testimonio
+                    Añadir fila
                 </button>
                 <button
                     onClick={saveSection}
@@ -214,8 +193,6 @@ export default function TestimonialsTab() {
                     Restaurar defaults
                 </button>
             </div>
-
-            {/* feedback via react-hot-toast */}
         </section>
     );
 }

@@ -14,6 +14,7 @@ import Faqs2Tab from "../../components/admin/Faqs2Tab";
 import Faq1MediaTab from "../../components/admin/Faq1MediaTab";
 import Faq2MediaTab from "../../components/admin/Faq2MediaTab";
 import TestimonialsTab from "../../components/admin/TestimonialsTab";
+import ScheduleTab from "../../components/admin/ScheduleTab";
 import { auth } from "@/services/firebase/client";
 import ToastClient from "@/components/toast.client";
 
@@ -36,6 +37,7 @@ export default function AdminPage() {
         | "faqs2_media"
         | "testimonials"
         | "therapists"
+        | "schedule"
     >("hero");
 
     useEffect(() => {
@@ -82,6 +84,7 @@ export default function AdminPage() {
                         ["contact", "Contacto"],
                         ["ctas", "CTA"],
                         ["gallery", "Galería"],
+                        ["schedule", "Horario"],
                         ["prices", "Precios"],
                         ["faqs1", "Preguntas (FAQS 1)"],
                         ["faqs1_media", "FAQ1 — Media"],
@@ -116,6 +119,7 @@ export default function AdminPage() {
                     {activeTab === "faqs2" && <Faqs2Tab />}
                     {activeTab === "faqs2_media" && <Faq2MediaTab />}
                     {activeTab === "testimonials" && <TestimonialsTab />}
+                    {activeTab === "schedule" && <ScheduleTab />}
 
                     <div className="mt-2 text-sm text-foreground/70">
                         Usa los botones "Guardar sección" dentro de cada pestaña

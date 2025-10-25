@@ -288,6 +288,10 @@ export const FAQS_2 = [
     },
 ];
 
+// Optional media for FAQ sections (image or video)
+export const FAQ1_MEDIA = { type: "", src: "", alt: "" };
+export const FAQ2_MEDIA = { type: "", src: "", alt: "" };
+
 export const CONTACT = {
     address: "Miraflores, Lima",
     phone: "+51 1 XXXX-XXXX",
@@ -319,6 +323,8 @@ export const DEFAULT_CONTENT = {
     THERAPISTS,
     TESTIMONIALS,
     FAQS_2,
+    FAQ1_MEDIA,
+    FAQ2_MEDIA,
 };
 
 export default DEFAULT_CONTENT;
