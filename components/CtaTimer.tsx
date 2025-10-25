@@ -4,18 +4,17 @@ import { useEffect, useState, useRef } from "react";
 const STORAGE_KEY = "cta_timer_end";
 
 function formatRemaining(ms: number) {
-    if (ms <= 0) return "00:00";
+    if (ms <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     const totalSec = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSec / 60);
+    const days = Math.floor(totalSec / (24 * 60 * 60));
+    const hours = Math.floor((totalSec % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((totalSec % (60 * 60)) / 60);
     const seconds = totalSec % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
-        2,
-        "0"
-    )}`;
+    return { days, hours, minutes, seconds };
 }
 
 export default function CtaTimer({
-    defaultMinutes = 60,
+    defaultMinutes = 2880, // 2 días = 2 * 24 * 60 = 2880 minutos
 }: {
     defaultMinutes?: number;
 }) {
@@ -73,10 +72,11 @@ export default function CtaTimer({
     // startTimer / clearTimer removed — timer auto-starts and persists
 
     const isActive = remaining > 0;
+    const timeLeft = formatRemaining(remaining);
 
     return (
         <div
-            className={`mb-6 p-6 rounded-xl max-w-md mx-auto transition-all shadow-lg flex flex-col items-center justify-center ${
+            className={`mb-6 p-6 rounded-xl max-w-2xl mx-auto transition-all shadow-lg flex flex-col items-center justify-center ${
                 isActive
                     ? "bg-linear-to-r from-red-500 to-pink-500 text-white ring-4 ring-red-300"
                     : "bg-background/40"
@@ -84,13 +84,57 @@ export default function CtaTimer({
             aria-live="polite"
         >
             <div className="text-center">
-                <div className="text-sm uppercase tracking-widest mb-2 font-semibold">
+                <div className="text-sm uppercase tracking-widest mb-4 font-semibold">
                     Oferta limitada
                 </div>
-                <div className="text-6xl md:text-7xl font-extrabold leading-none">
-                    {formatRemaining(remaining)}
+                <div className="flex gap-4 md:gap-6 items-center justify-center">
+                    {/* Días */}
+                    <div className="flex flex-col items-center">
+                        <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                            {String(timeLeft.days).padStart(2, "0")}
+                        </div>
+                        <div className="text-xs md:text-sm mt-1 opacity-80 uppercase">
+                            Días
+                        </div>
+                    </div>
+                    <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                        :
+                    </div>
+                    {/* Horas */}
+                    <div className="flex flex-col items-center">
+                        <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                            {String(timeLeft.hours).padStart(2, "0")}
+                        </div>
+                        <div className="text-xs md:text-sm mt-1 opacity-80 uppercase">
+                            Horas
+                        </div>
+                    </div>
+                    <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                        :
+                    </div>
+                    {/* Minutos */}
+                    <div className="flex flex-col items-center">
+                        <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                            {String(timeLeft.minutes).padStart(2, "0")}
+                        </div>
+                        <div className="text-xs md:text-sm mt-1 opacity-80 uppercase">
+                            Min
+                        </div>
+                    </div>
+                    <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                        :
+                    </div>
+                    {/* Segundos */}
+                    <div className="flex flex-col items-center">
+                        <div className="text-4xl md:text-6xl font-extrabold leading-none">
+                            {String(timeLeft.seconds).padStart(2, "0")}
+                        </div>
+                        <div className="text-xs md:text-sm mt-1 opacity-80 uppercase">
+                            Seg
+                        </div>
+                    </div>
                 </div>
-                <div className="mt-2 text-sm opacity-80">
+                <div className="mt-4 text-sm opacity-80">
                     Aprovecha antes de que termine
                 </div>
             </div>

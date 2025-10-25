@@ -65,7 +65,7 @@ export default function Navigation({
 
                     {/* CTA Button */}
                     <div className="hidden md:block">
-                        <button className="px-6 py-2 bg-primary text-background font-semibold rounded-full hover:bg-primary-dark transition-colors">
+                        <button className="px-6 py-2 bg-primary text-background font-semibold rounded-full hover:bg-primary-dark transition-colors cursor-pointer">
                             Agendar
                         </button>
                     </div>
@@ -92,7 +92,7 @@ export default function Navigation({
                                 {item.label}
                             </Link>
                         ))}
-                        <button className="w-full mt-4 px-6 py-2 bg-primary text-background font-semibold rounded-full hover:bg-primary-dark transition-colors">
+                        <button className="w-full mt-4 px-6 py-2 bg-primary text-background font-semibold rounded-full hover:bg-primary-dark transition-colors cursor-pointer">
                             Agendar
                         </button>
                     </div>

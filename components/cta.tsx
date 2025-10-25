@@ -5,6 +5,7 @@ import {
     FOOTER_NOTE as FOOTER_NOTE_FALLBACK,
 } from "../lib/content";
 import CtaTimer from "./CtaTimer";
+import CtaModal from "./CtaModal";
 
 export default async function CTA() {
     let ctas = CTAS_FALLBACK;
@@ -69,16 +70,8 @@ export default async function CTA() {
                     <div className="md:col-span-2 flex justify-center">
                         <CtaTimer />
                     </div>
-                    {ctas.map((cta: any) => (
-                        <a
-                            key={cta.label}
-                            href={cta.url}
-                            className="group px-8 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-105 shadow-lg hover:shadow-xl text-lg flex items-center justify-center gap-3"
-                        >
-                            <span>📅</span>
-                            <span>{cta.label}</span>
-                        </a>
-                    ))}
+                    {/* Modal con CTAs */}
+                    <CtaModal ctas={ctas} />
                 </div>
 
                 {/* Contact Info */}

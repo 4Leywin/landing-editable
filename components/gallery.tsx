@@ -96,6 +96,7 @@ export default function Gallery() {
                                                     muted
                                                     playsInline
                                                     loop
+                                                    autoPlay
                                                     onClick={() =>
                                                         setSelected({
                                                             src: r.src,
@@ -120,7 +121,7 @@ export default function Gallery() {
                                                 }`}
                                             >
                                                 {/* subtle gradient to darken image on hover/tap */}
-                                                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/50 to-black/10 group-hover:opacity-100 group-hover:bg-blue-300 transition-opacity duration-300"></div>
+                                                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-black/10 group-hover:opacity-100 group-hover:bg-blue-300 transition-opacity duration-300"></div>
 
                                                 <div
                                                     className={`absolute left-0 right-0 bottom-0 p-4 text-white transform transition-all duration-300 ${
@@ -301,7 +302,7 @@ export default function Gallery() {
                                     />
                                 )}
 
-                                <div className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-colors duration-200 flex items-end opacity-0 hover:opacity-100">
+                                <div className="absolute inset-0 bg-black/0 hover:bg-black/60 transition-colors duration-200 flex items-end opacity-0 hover:opacity-100">
                                     <div className="p-4 text-white w-full">
                                         <div className="font-semibold text-lg">
                                             {r.title}
