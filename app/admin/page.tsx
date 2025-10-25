@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { DEFAULT_CONTENT } from "../../lib/content";
 import HeroTab from "../../components/admin/HeroTab";
+import HeroMediaTab from "../../components/admin/HeroMediaTab";
 import NavTab from "../../components/admin/NavTab";
 import BenefitsTab from "../../components/admin/BenefitsTab";
 import ContactTab from "../../components/admin/ContactTab";
@@ -10,8 +11,9 @@ import GalleryTab from "../../components/admin/GalleryTab";
 import PricesTab from "../../components/admin/PricesTab";
 import FaqsTab from "../../components/admin/FaqsTab";
 import Faqs2Tab from "../../components/admin/Faqs2Tab";
+import Faq1MediaTab from "../../components/admin/Faq1MediaTab";
+import Faq2MediaTab from "../../components/admin/Faq2MediaTab";
 import TestimonialsTab from "../../components/admin/TestimonialsTab";
-import TherapistsTab from "../../components/admin/TherapistsTab";
 import { auth } from "@/services/firebase/client";
 import ToastClient from "@/components/toast.client";
 
@@ -21,6 +23,7 @@ export default function AdminPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<
         | "hero"
+        | "hero_media"
         | "nav"
         | "benefits"
         | "contact"
@@ -28,7 +31,9 @@ export default function AdminPage() {
         | "gallery"
         | "prices"
         | "faqs1"
+        | "faqs1_media"
         | "faqs2"
+        | "faqs2_media"
         | "testimonials"
         | "therapists"
     >("hero");
@@ -72,13 +77,16 @@ export default function AdminPage() {
                 <div className="mb-4 flex gap-2 flex-wrap">
                     {[
                         ["hero", "Hero"],
+                        ["hero_media", "Hero — Media"],
                         ["benefits", "Beneficios"],
                         ["contact", "Contacto"],
                         ["ctas", "CTA"],
                         ["gallery", "Galería"],
                         ["prices", "Precios"],
                         ["faqs1", "Preguntas (FAQS 1)"],
+                        ["faqs1_media", "FAQ1 — Media"],
                         ["faqs2", "Preguntas (FAQS 2)"],
+                        ["faqs2_media", "FAQ2 — Media"],
                         ["testimonials", "Testimonios"],
                     ].map(([key, label]) => (
                         <button
@@ -97,15 +105,17 @@ export default function AdminPage() {
 
                 <div className="grid gap-6">
                     {activeTab === "hero" && <HeroTab />}
+                    {activeTab === "hero_media" && <HeroMediaTab />}
                     {activeTab === "benefits" && <BenefitsTab />}
                     {activeTab === "contact" && <ContactTab />}
                     {activeTab === "ctas" && <CtasTab />}
                     {activeTab === "gallery" && <GalleryTab />}
                     {activeTab === "prices" && <PricesTab />}
                     {activeTab === "faqs1" && <FaqsTab />}
+                    {activeTab === "faqs1_media" && <Faq1MediaTab />}
                     {activeTab === "faqs2" && <Faqs2Tab />}
+                    {activeTab === "faqs2_media" && <Faq2MediaTab />}
                     {activeTab === "testimonials" && <TestimonialsTab />}
-                    {activeTab === "therapists" && <TherapistsTab />}
 
                     <div className="mt-2 text-sm text-foreground/70">
                         Usa los botones "Guardar sección" dentro de cada pestaña

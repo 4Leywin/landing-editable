@@ -8,7 +8,6 @@ export default async function Pricing() {
     let prices = PRICES_FALLBACK;
     try {
         const doc = await getById<any>("prices", "main");
-        console.log("Fetched prices document:", doc);
         if (doc) {
             prices = doc.PRICES;
         }
@@ -19,6 +18,9 @@ export default async function Pricing() {
             err
         );
     }
-
+    // filter out deactivated prices (if `active` flag exists)
+    if (Array.isArray(prices)) {
+        prices = prices.filter((p: any) => p.active !== false);
+    }
     return <PricingClient prices={prices} note={PRICES_NOTE} />;
 }

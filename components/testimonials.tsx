@@ -26,20 +26,22 @@ export default function Testimonials() {
                 const remote = (data?.TESTIMONIALS || []).map(
                     (t: any, i: number) => ensureId(t, i)
                 );
+                const chosen = remote.length
+                    ? remote
+                    : (DEFAULT_CONTENT.TESTIMONIALS || []).map((t, i) =>
+                          ensureId(t, i)
+                      );
+                // show only active items when field exists
                 setTestimonials(
-                    remote.length
-                        ? remote
-                        : (DEFAULT_CONTENT.TESTIMONIALS || []).map((t, i) =>
-                              ensureId(t, i)
-                          )
+                    chosen.filter((it: any) => it.active !== false)
                 );
             } catch (e) {
                 // fall back silently to defaults
                 if (!mounted) return;
                 setTestimonials(
-                    (DEFAULT_CONTENT.TESTIMONIALS || []).map((t, i) =>
-                        ensureId(t, i)
-                    )
+                    (DEFAULT_CONTENT.TESTIMONIALS || [])
+                        .map((t, i) => ensureId(t, i))
+                        .filter((it: any) => it.active !== false)
                 );
             }
         })();

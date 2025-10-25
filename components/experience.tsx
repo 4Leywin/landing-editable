@@ -15,6 +15,7 @@ export default function Experience() {
         (async () => {
             try {
                 const data = await getById<any>("benefits", "main");
+                console.log("Fetched benefits document:", data);
                 if (!mounted) return;
                 setBenefits(data?.BENEFITS ?? BENEFITS_FALLBACK);
             } catch (e) {
@@ -26,12 +27,14 @@ export default function Experience() {
         };
     }, []);
 
-    const experiences = [
-        { icon: Heart, ...(benefits[0] ?? BENEFITS_FALLBACK[0]) },
-        { icon: Zap, ...(benefits[1] ?? BENEFITS_FALLBACK[1]) },
-        { icon: Compass, ...(benefits[2] ?? BENEFITS_FALLBACK[2]) },
-    ];
+    const visibleBenefits = benefits.filter((b) => b.active !== false);
 
+    const experiences = [
+        { icon: Heart, ...(visibleBenefits[0] ?? BENEFITS_FALLBACK[0]) },
+        { icon: Zap, ...(visibleBenefits[1] ?? BENEFITS_FALLBACK[1]) },
+        { icon: Compass, ...(visibleBenefits[2] ?? BENEFITS_FALLBACK[2]) },
+    ];
+    console.log("Rendering experiences:", visibleBenefits);
     return (
         <section
             id="beneficios"

@@ -25,6 +25,9 @@ export default function Navigation({
     const navItems: NavItem[] =
         navProp && navProp.length ? navProp : NAV_FALLBACK;
 
+    // only show active nav items when `active` exists
+    const visibleNav = (navItems || []).filter((n: any) => n.active !== false);
+
     return (
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -49,7 +52,7 @@ export default function Navigation({
 
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-8">
-                        {navItems.map((item) => (
+                        {visibleNav.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}
@@ -79,7 +82,7 @@ export default function Navigation({
                 {/* Mobile Menu */}
                 {mobileOpen && (
                     <div className="md:hidden pb-4 border-t border-border bg-secondary w-full">
-                        {navItems.map((item) => (
+                        {visibleNav.map((item) => (
                             <Link
                                 key={item.href}
                                 href={item.href}

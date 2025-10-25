@@ -6,6 +6,7 @@ export default async function FAQ() {
     let faqs = FAQS_FALLBACK;
     try {
         const doc = await getById<any>("faqs", "main");
+        console.log("Fetched faqs document:", doc);
         if (doc) {
             if (Array.isArray(doc.FAQS)) faqs = doc.FAQS;
             else if (Array.isArray(doc.faqs)) faqs = doc.faqs;
@@ -17,6 +18,9 @@ export default async function FAQ() {
             err
         );
     }
+
+    // show only active faqs when flag exists
+    if (Array.isArray(faqs)) faqs = faqs.filter((f) => f.active !== false);
 
     return <FAQClient faqs={faqs} />;
 }

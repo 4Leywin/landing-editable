@@ -42,6 +42,11 @@ export default function Gallery() {
         };
     }, []);
 
+    // Only show active resources when the flag exists
+    const visibleResources = resources
+        .map((r, i) => ({ ...r, _idx: i }))
+        .filter((r) => r.active !== false);
+
     return (
         <section id="gallery" className="py-20 px-4 bg-background">
             <div className="max-w-6xl mx-auto">
@@ -63,7 +68,7 @@ export default function Gallery() {
                             className="overflow-x-auto snap-x snap-mandatory flex gap-4 pb-4"
                             role="list"
                         >
-                            {resources.map((r) => (
+                            {visibleResources.map((r) => (
                                 <article
                                     key={r.id}
                                     role="listitem"
@@ -260,7 +265,7 @@ export default function Gallery() {
 
                 {/* Desktop grid */}
                 <div className="hidden md:grid md:grid-cols-3 gap-6">
-                    {resources.map((r: any) => (
+                    {visibleResources.map((r: any) => (
                         <article
                             key={r.id}
                             className="rounded-lg overflow-hidden bg-background/50 border border-border"

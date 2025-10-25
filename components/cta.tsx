@@ -34,6 +34,9 @@ export default async function CTA() {
         );
     }
 
+    // filter out deactivated CTAs
+    if (Array.isArray(ctas)) ctas = ctas.filter((c: any) => c.active !== false);
+
     return (
         <section
             id="contact"
