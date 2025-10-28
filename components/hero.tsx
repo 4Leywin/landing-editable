@@ -34,6 +34,8 @@ export default async function Hero() {
                                     loop
                                     className="w-full h-full object-cover object-center"
                                     poster="/placeholder.svg?height=720&width=1280"
+                                    {...({ fetchPriority: "high" } as any)}
+                                    preload="metadata"
                                 >
                                     <source
                                         src={HERO.videoSrc}
@@ -48,6 +50,7 @@ export default async function Hero() {
                                     }
                                     alt={HERO?.title || "hero"}
                                     className="w-full h-full object-cover object-center"
+                                    {...({ fetchpriority: "high" } as any)}
                                 />
                             )}
                             {/* Overlay decorativo */}

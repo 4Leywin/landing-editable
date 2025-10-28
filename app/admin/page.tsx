@@ -16,7 +16,7 @@ import Faq2MediaTab from "../../components/admin/Faq2MediaTab";
 import TestimonialsTab from "../../components/admin/TestimonialsTab";
 import ScheduleTab from "../../components/admin/ScheduleTab";
 import SiteTab from "../../components/admin/SiteTab";
-import { auth } from "@/services/firebase/client";
+import app from "@/services/firebase/client";
 import ToastClient from "@/components/toast.client";
 
 export default function AdminPage() {
@@ -43,18 +43,31 @@ export default function AdminPage() {
     >("site");
 
     useEffect(() => {
-        // Escuchar cambios en la autenticación
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                setIsAuthenticated(true);
-            } else {
-                setIsAuthenticated(false);
-            }
-            setLoading(false); // Solo aquí, después de determinar el estado real
-        });
+        // Escuchar cambios en la autenticación (lazy-load firebase/auth)
+        let unsub: (() => void) | null = null;
+        let mounted = true;
 
-        // Cleanup
-        return () => unsubscribe();
+        (async () => {
+            try {
+                const { getAuth } = await import("firebase/auth");
+                const auth = getAuth(app as any);
+                const u = auth.onAuthStateChanged((user: any) => {
+                    if (!mounted) return;
+                    if (user) setIsAuthenticated(true);
+                    else setIsAuthenticated(false);
+                    setLoading(false);
+                });
+                unsub = u;
+            } catch (e) {
+                console.warn("Auth init failed", e);
+                if (mounted) setLoading(false);
+            }
+        })();
+
+        return () => {
+            mounted = false;
+            if (unsub) unsub();
+        };
     }, []);
 
     // Pantalla de carga

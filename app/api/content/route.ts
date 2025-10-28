@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAll, createItem } from "@/services/firebase/content";
-import { auth } from "@/services/firebase/client";
 
 // ✅ GET → lee una colección completa
 export async function GET(req: NextRequest) {
     const nameCollection = req.nextUrl.searchParams.get("collection");
-    console.log("Current user:", auth.currentUser);
     if (!nameCollection) {
         return NextResponse.json(
             { error: "Missing 'collection' parameter" },

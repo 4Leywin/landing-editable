@@ -1,6 +1,4 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./client";
+import app from "./client";
 
 interface IFirebaseService {
     registerUser: (email: string, password: string) => Promise<any>;
@@ -11,6 +9,10 @@ interface IFirebaseService {
 class FirebaseService implements IFirebaseService {
     async registerUser(email: string, password: string): Promise<any> {
         try {
+            const { getAuth, createUserWithEmailAndPassword } = await import(
+                "firebase/auth"
+            );
+            const auth = getAuth(app as any);
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
                 email,
@@ -29,6 +31,10 @@ class FirebaseService implements IFirebaseService {
 
     async loginUser(email: string, password: string): Promise<any> {
         try {
+            const { getAuth, signInWithEmailAndPassword } = await import(
+                "firebase/auth"
+            );
+            const auth = getAuth(app as any);
             const userCredential = await signInWithEmailAndPassword(
                 auth,
                 email,

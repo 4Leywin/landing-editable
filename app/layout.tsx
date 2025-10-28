@@ -27,6 +27,35 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="es">
+            <head>
+                {/* Preconnect / DNS-prefetch for Firebase & Google APIs to reduce handshake time */}
+                <link
+                    rel="preconnect"
+                    href="https://landings-5bef0.firebaseapp.com"
+                    crossOrigin=""
+                />
+                <link
+                    rel="preconnect"
+                    href="https://www.googleapis.com"
+                    crossOrigin=""
+                />
+                <link
+                    rel="preconnect"
+                    href="https://firestore.googleapis.com"
+                    crossOrigin=""
+                />
+                <link
+                    rel="dns-prefetch"
+                    href="https://landings-5bef0.firebaseapp.com"
+                />
+                {/* Preload hero poster (LCP) */}
+                <link
+                    rel="preload"
+                    as="image"
+                    href="/placeholder.svg?height=720&width=1280"
+                    fetchPriority="high"
+                />
+            </head>
             <body
                 className={`${playfair.variable} ${montserrat.variable} font-sans antialiased bg-background text-foreground`}
             >
