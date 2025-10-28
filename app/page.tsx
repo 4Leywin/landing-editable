@@ -13,6 +13,9 @@ import Schedule from "@/components/Schedule";
 import { getById } from "@/services/firebase/content";
 import { DEFAULT_CONTENT } from "@/lib/content";
 import ToastClient from "@/components/toast.client";
+// Use ISR (revalidate) so the page is refreshed every N seconds in production
+// while keeping good performance and avoiding stale build-time data.
+export const revalidate = 60; // seconds
 export default async function Home() {
     // Try to read nav items from Firestore (collection: 'nav_items', doc: 'main')
     let navItems = DEFAULT_CONTENT.NAV_ITEMS;
