@@ -244,4 +244,4 @@ export async function seedAll(options?: {
     return results;
 }
 
-seedAll();
+// seedAll();

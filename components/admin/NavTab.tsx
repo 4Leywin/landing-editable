@@ -11,6 +11,7 @@ export default function NavTab() {
     ]);
     const [loading, setLoading] = useState(true);
     const [showInactive, setShowInactive] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -20,8 +21,10 @@ export default function NavTab() {
                 const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
                 setNavItems(data?.NAV_ITEMS ?? DEFAULT_CONTENT.NAV_ITEMS);
+                setIsLoaded(true);
             } catch (err) {
                 setNavItems(DEFAULT_CONTENT.NAV_ITEMS);
+                setIsLoaded(true);
             } finally {
                 if (mounted) setLoading(false);
             }
@@ -38,31 +41,37 @@ export default function NavTab() {
             { label: "Nuevo", href: "#new", active: true },
         ];
         setNavItems(newItems);
-        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => toast.success("Navegación actualizada"))
-            .catch((e) =>
-                toast.error("Error guardando navegación: " + String(e))
-            );
+        if (isLoaded) {
+            setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+                .then(() => toast.success("Navegación actualizada"))
+                .catch((e) =>
+                    toast.error("Error guardando navegación: " + String(e))
+                );
+        }
     }
     function updateNavItem(idx: number, field: string, value: string) {
         const newItems = navItems.map((it, i) =>
             i === idx ? { ...it, [field]: value } : it
         );
         setNavItems(newItems);
-        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => toast.success("Navegación actualizada"))
-            .catch((e) =>
-                toast.error("Error guardando navegación: " + String(e))
-            );
+        if (isLoaded) {
+            setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+                .then(() => toast.success("Navegación actualizada"))
+                .catch((e) =>
+                    toast.error("Error guardando navegación: " + String(e))
+                );
+        }
     }
     function removeNavItem(idx: number) {
         const newItems = navItems.filter((_, i) => i !== idx);
         setNavItems(newItems);
-        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => toast.success("Navegación actualizada"))
-            .catch((e) =>
-                toast.error("Error guardando navegación: " + String(e))
-            );
+        if (isLoaded) {
+            setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+                .then(() => toast.success("Navegación actualizada"))
+                .catch((e) =>
+                    toast.error("Error guardando navegación: " + String(e))
+                );
+        }
     }
 
     function toggleActive(idx: number) {
@@ -72,11 +81,13 @@ export default function NavTab() {
                 : it
         );
         setNavItems(newItems);
-        setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
-            .then(() => toast.success("Navegación actualizada"))
-            .catch((e) =>
-                toast.error("Error guardando navegación: " + String(e))
-            );
+        if (isLoaded) {
+            setDoc(doc(db, "nav_items", "main"), { NAV_ITEMS: newItems })
+                .then(() => toast.success("Navegación actualizada"))
+                .catch((e) =>
+                    toast.error("Error guardando navegación: " + String(e))
+                );
+        }
     }
 
     async function saveSection() {

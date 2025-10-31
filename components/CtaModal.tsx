@@ -73,7 +73,7 @@ export default function CtaModal({ ctas }: CtaModalProps) {
                                 <a
                                     key={cta.label}
                                     href={cta.url}
-                                    className="group px-8 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-102 shadow-lg hover:shadow-xl text-lg flex items-center justify-center gap-3"
+                                    className="group px-8 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-102 shadow-lg hover:shadow-xl text-lg flex items-center justify-center gap-3 text-center"
                                     onClick={closeModal}
                                     target="_blank"
                                     rel="noopener noreferrer"

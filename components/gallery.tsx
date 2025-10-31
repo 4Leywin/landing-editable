@@ -43,6 +43,89 @@ interface LightboxProps {
 // ==================== SUB-COMPONENTES ====================
 
 /**
+ * Componente de video con control de volumen
+ */
+function VideoWithVolumeControl({
+    src,
+    className,
+    onClick,
+    autoPlay = true,
+}: {
+    src: string;
+    className?: string;
+    onClick?: () => void;
+    autoPlay?: boolean;
+}) {
+    const [isMuted, setIsMuted] = useState(true);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    const toggleMute = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (videoRef.current) {
+            videoRef.current.muted = !isMuted;
+            setIsMuted(!isMuted);
+        }
+    };
+
+    return (
+        <div className="relative w-full h-full group">
+            <video
+                ref={videoRef}
+                src={src}
+                className={className}
+                muted={isMuted}
+                playsInline
+                loop
+                autoPlay={autoPlay}
+                onClick={onClick}
+            />
+            {/* Botón de volumen - siempre visible con z-index alto para estar sobre overlays */}
+            <button
+                onClick={toggleMute}
+                className="absolute top-3 right-3 z-50 bg-black/70 hover:bg-black/90 text-white p-2.5 rounded-full transition-all shadow-lg backdrop-blur-sm pointer-events-auto"
+                aria-label={isMuted ? "Activar sonido" : "Desactivar sonido"}
+            >
+                {isMuted ? (
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                        />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
+                        />
+                    </svg>
+                ) : (
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                        />
+                    </svg>
+                )}
+            </button>
+        </div>
+    );
+}
+
+/**
  * Muestra los metadatos de un recurso con opción de expandir/colapsar
  */
 function MetadataList({
@@ -107,16 +190,16 @@ function MediaOverlay({
 }: MediaOverlayProps) {
     return (
         <button
-            className="absolute inset-0 group"
+            className="absolute inset-0 group pointer-events-none"
             onClick={() => onToggleTap(isTapActive ? null : resource.id)}
             aria-label={`Mostrar información de ${resource.title || "recurso"}`}
         >
-            {/* Gradiente de oscurecimiento */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-black/10 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {/* Gradiente de oscurecimiento - ahora con pointer-events-auto solo aquí */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/50 to-black/10 group-hover:opacity-100 transition-opacity duration-300 pointer-events-auto"></div>
 
             {/* Contenido de información */}
             <div
-                className={`absolute left-0 right-0 bottom-0 p-4 text-white transform transition-all duration-300 ${
+                className={`absolute left-0 right-0 bottom-0 p-4 text-white transform transition-all duration-300 pointer-events-auto ${
                     isTapActive
                         ? "translate-y-0 opacity-100"
                         : "translate-y-6 opacity-0 group-hover:translate-y-0 group-hover:opacity-100"
@@ -159,13 +242,9 @@ function MediaCard({ resource, onSelect, overlayContent }: MediaCardProps) {
                     onClick={() => onSelect(resource.src, "image")}
                 />
             ) : (
-                <video
+                <VideoWithVolumeControl
                     src={resource.src}
                     className="w-full h-full object-cover cursor-pointer"
-                    muted
-                    playsInline
-                    loop
-                    autoPlay
                     onClick={() => onSelect(resource.src, "video")}
                 />
             )}
@@ -302,13 +381,9 @@ function DesktopGrid({
                                 onClick={() => onSelect(resource.src, "image")}
                             />
                         ) : (
-                            <video
+                            <VideoWithVolumeControl
                                 src={resource.src}
                                 className="w-full h-full object-cover cursor-pointer"
-                                muted
-                                playsInline
-                                loop
-                                autoPlay
                                 onClick={() => onSelect(resource.src, "video")}
                             />
                         )}
@@ -350,6 +425,17 @@ function DesktopGrid({
  * Modal Lightbox para ver recursos en pantalla completa
  */
 function Lightbox({ selected, onClose }: LightboxProps) {
+    const [isMuted, setIsMuted] = useState(false);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    const toggleMute = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (videoRef.current) {
+            videoRef.current.muted = !isMuted;
+            setIsMuted(!isMuted);
+        }
+    };
+
     if (!selected) return null;
 
     return (
@@ -368,12 +454,60 @@ function Lightbox({ selected, onClose }: LightboxProps) {
                         className="w-full h-auto rounded-lg"
                     />
                 ) : (
-                    <video
-                        src={selected.src}
-                        className="w-full h-auto rounded-lg"
-                        controls
-                        autoPlay
-                    />
+                    <div className="relative">
+                        <video
+                            ref={videoRef}
+                            src={selected.src}
+                            className="w-full h-auto rounded-lg"
+                            controls
+                            autoPlay
+                            muted={isMuted}
+                        />
+                        {/* Botón de volumen para lightbox */}
+                        <button
+                            onClick={toggleMute}
+                            className="absolute top-4 left-4 z-10 bg-black/60 hover:bg-black/80 text-white p-3 rounded-full transition-all"
+                            aria-label={
+                                isMuted ? "Activar sonido" : "Desactivar sonido"
+                            }
+                        >
+                            {isMuted ? (
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
+                                    />
+                                </svg>
+                            ) : (
+                                <svg
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                                    />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
                 )}
                 <button
                     className="absolute top-4 right-4 text-primary hover:text-primary-dark transition-colors"

@@ -25,6 +25,7 @@ export default function GalleryTab() {
     const [resources, setResources] = useState<Resource[]>(
         DEFAULT_CONTENT.RESOURCES
     );
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -34,8 +35,10 @@ export default function GalleryTab() {
                 const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
                 setResources(data?.RESOURCES ?? DEFAULT_CONTENT.RESOURCES);
+                setIsLoaded(true);
             } catch (err) {
                 setResources(DEFAULT_CONTENT.RESOURCES);
+                setIsLoaded(true);
             }
         }
         load();
@@ -130,9 +133,12 @@ export default function GalleryTab() {
         );
         setResources(newItems);
         // autosave without success toast to avoid spamming when typing
-        setDoc(doc(db, "resources", "main"), { RESOURCES: newItems }).catch(
-            (e) => toast.error("Error guardando galería: " + String(e))
-        );
+        // Solo ejecutar si los datos ya se cargaron
+        if (isLoaded) {
+            setDoc(doc(db, "resources", "main"), { RESOURCES: newItems }).catch(
+                (e) => toast.error("Error guardando galería: " + String(e))
+            );
+        }
     }
 
     async function saveSection() {

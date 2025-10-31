@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 export default function ContactTab() {
     const [contact, setContact] = useState<any>({ ...DEFAULT_CONTENT.CONTACT });
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -17,8 +18,10 @@ export default function ContactTab() {
                 const data = snap.exists() ? (snap.data() as any) : null;
                 if (!mounted) return;
                 setContact(data?.CONTACT ?? DEFAULT_CONTENT.CONTACT);
+                setIsLoaded(true);
             } catch (err) {
                 setContact(DEFAULT_CONTENT.CONTACT);
+                setIsLoaded(true);
             }
         }
         load();
@@ -45,6 +48,9 @@ export default function ContactTab() {
 
     // Persistir cambios inmediatos al actualizar campos
     useEffect(() => {
+        // Solo ejecutar autosave después de que los datos se hayan cargado
+        if (!isLoaded) return;
+
         // debounce simple para no spamear escrituras en cada tecla
         const t = setTimeout(() => {
             // autosave: write silently (no toast on success) to avoid spamming on every keystroke
@@ -55,7 +61,7 @@ export default function ContactTab() {
             );
         }, 400);
         return () => clearTimeout(t);
-    }, [contact]);
+    }, [contact, isLoaded]);
 
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">

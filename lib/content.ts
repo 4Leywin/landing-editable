@@ -294,7 +294,7 @@ export const FAQ2_MEDIA = { type: "", src: "", alt: "" };
 
 export const CONTACT = {
     address: "Miraflores, Lima",
-    phone: "+51 1 XXXX-XXXX",
+    phone: "+51 999 999 999 ",
     availability: "Lunes a Domingo 6PM-2AM",
 };
 
