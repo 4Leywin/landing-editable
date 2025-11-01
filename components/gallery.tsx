@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import {
     RESOURCES as RESOURCES_FALLBACK,
-    GALLERY_NOTE as GALLERY_NOTE_FALLBACK,
+    GALLERY_CONTENT as GALLERY_CONTENT_FALLBACK,
 } from "../lib/content";
 import { getById } from "@/services/firebase/content";
 
@@ -534,8 +534,11 @@ export default function Gallery() {
     const [resources, setResources] = useState<ResourceItem[]>([
         ...RESOURCES_FALLBACK,
     ]);
+    const [galleryTitle, setGalleryTitle] = useState<string>(
+        GALLERY_CONTENT_FALLBACK.title
+    );
     const [galleryNote, setGalleryNote] = useState<string>(
-        GALLERY_NOTE_FALLBACK
+        GALLERY_CONTENT_FALLBACK.note
     );
 
     const listRef = useRef<HTMLDivElement | null>(null);
@@ -557,10 +560,16 @@ export default function Gallery() {
                 const data = await getById<any>("resources", "main");
                 if (!mounted) return;
                 setResources(data?.RESOURCES ?? RESOURCES_FALLBACK);
-                setGalleryNote(data?.GALLERY_NOTE ?? GALLERY_NOTE_FALLBACK);
+                setGalleryTitle(
+                    data?.GALLERY_TITLE ?? GALLERY_CONTENT_FALLBACK.title
+                );
+                setGalleryNote(
+                    data?.GALLERY_NOTE ?? GALLERY_CONTENT_FALLBACK.note
+                );
             } catch (e) {
                 setResources(RESOURCES_FALLBACK);
-                setGalleryNote(GALLERY_NOTE_FALLBACK);
+                setGalleryTitle(GALLERY_CONTENT_FALLBACK.title);
+                setGalleryNote(GALLERY_CONTENT_FALLBACK.note);
             }
         })();
         return () => {
@@ -581,7 +590,7 @@ export default function Gallery() {
                         ✦ Galería
                     </p>
                     <h2 className="font-serif text-3xl md:text-4xl font-bold text-foreground">
-                        Fotos reales y mini videos
+                        {galleryTitle}
                     </h2>
                     <p className="text-foreground/60 mt-2">{galleryNote}</p>
                 </div>

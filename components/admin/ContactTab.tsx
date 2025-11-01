@@ -66,30 +66,78 @@ export default function ContactTab() {
     return (
         <section className="mb-6 p-4 border rounded bg-background/50">
             <h2 className="font-semibold mb-3">Contacto</h2>
-            <label className="block text-sm">Dirección</label>
-            <input
-                value={contact.address}
-                onChange={(e) =>
-                    setContact({ ...contact, address: e.target.value })
-                }
-                className="w-full p-2 rounded border mb-2"
-            />
-            <label className="block text-sm">Teléfono</label>
-            <input
-                value={contact.phone}
-                onChange={(e) =>
-                    setContact({ ...contact, phone: e.target.value })
-                }
-                className="w-full p-2 rounded border mb-2"
-            />
-            <label className="block text-sm">Disponibilidad</label>
-            <input
-                value={contact.availability}
-                onChange={(e) =>
-                    setContact({ ...contact, availability: e.target.value })
-                }
-                className="w-full p-2 rounded border mb-2"
-            />
+
+            <div className="mb-4 p-3 border-t pt-3">
+                <h3 className="font-semibold mb-2 text-sm">
+                    Información de Contacto
+                </h3>
+                <label className="block text-sm">Dirección</label>
+                <input
+                    value={contact.address}
+                    onChange={(e) =>
+                        setContact({ ...contact, address: e.target.value })
+                    }
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">Teléfono</label>
+                <input
+                    value={contact.phone}
+                    onChange={(e) =>
+                        setContact({ ...contact, phone: e.target.value })
+                    }
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">Disponibilidad</label>
+                <input
+                    value={contact.availability}
+                    onChange={(e) =>
+                        setContact({ ...contact, availability: e.target.value })
+                    }
+                    className="w-full p-2 rounded border mb-2"
+                />
+            </div>
+
+            <div className="mb-4 p-3 border-t pt-3">
+                <h3 className="font-semibold mb-2 text-sm">
+                    Texto del CTA (Llamado a la Acción)
+                </h3>
+                <label className="block text-sm">Título Principal</label>
+                <input
+                    value={contact.ctaTitle || ""}
+                    onChange={(e) =>
+                        setContact({ ...contact, ctaTitle: e.target.value })
+                    }
+                    placeholder="Ej: Atrévete a Sentir"
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">
+                    Título Destacado (segunda línea)
+                </label>
+                <input
+                    value={contact.ctaTitleHighlight || ""}
+                    onChange={(e) =>
+                        setContact({
+                            ...contact,
+                            ctaTitleHighlight: e.target.value,
+                        })
+                    }
+                    placeholder="Ej: Distinto"
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">Descripción</label>
+                <textarea
+                    value={contact.ctaDescription || ""}
+                    onChange={(e) =>
+                        setContact({
+                            ...contact,
+                            ctaDescription: e.target.value,
+                        })
+                    }
+                    placeholder="Tu ritual dorado te espera..."
+                    rows={3}
+                    className="w-full p-2 rounded border mb-2"
+                />
+            </div>
 
             <div className="flex gap-2 mt-3">
                 <button

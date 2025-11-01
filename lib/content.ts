@@ -91,8 +91,13 @@ export const RESOURCES: ResourceItem[] = [
     },
 ];
 
-export const GALLERY_NOTE =
-    "Énfasis en contenido real y sin filtros — fotos y mini videos disponibles";
+export const GALLERY_CONTENT = {
+    title: "Fotos reales y mini videos",
+    note: "Énfasis en contenido real y sin filtros — fotos y mini videos disponibles",
+};
+
+// Backward compatibility
+export const GALLERY_NOTE = GALLERY_CONTENT.note;
 
 // --- Centralized site content for easy editing ---
 export const SITE = {
@@ -296,6 +301,10 @@ export const CONTACT = {
     address: "Miraflores, Lima",
     phone: "+51 999 999 999 ",
     availability: "Lunes a Domingo 6PM-2AM",
+    ctaTitle: "Atrévete a Sentir",
+    ctaTitleHighlight: "Distinto",
+    ctaDescription:
+        "Tu ritual dorado te espera. Elige tu camino hacia la transformación y descubre una nueva dimensión de bienestar, energía y conexión profunda.",
 };
 
 export const CTAS = [
@@ -318,6 +327,7 @@ export const DEFAULT_CONTENT = {
     FOOTER_NOTE,
     RESOURCES,
     GALLERY_NOTE,
+    GALLERY_CONTENT,
     SCHEDULE,
     PRICES,
     THERAPISTS,

@@ -54,14 +54,15 @@ export default async function CTA() {
                     </p>
 
                     <h2 className="font-serif text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-                        Atrévete a Sentir
-                        <span className="block text-primary">Distinto</span>
+                        {contact.ctaTitle || "Atrévete a Sentir"}
+                        <span className="block text-primary">
+                            {contact.ctaTitleHighlight || "Distinto"}
+                        </span>
                     </h2>
 
                     <p className="text-foreground/70 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-                        Tu ritual dorado te espera. Elige tu camino hacia la
-                        transformación y descubre una nueva dimensión de
-                        bienestar, energía y conexión profunda.
+                        {contact.ctaDescription ||
+                            "Tu ritual dorado te espera. Elige tu camino hacia la transformación y descubre una nueva dimensión de bienestar, energía y conexión profunda."}
                     </p>
                 </div>
 
