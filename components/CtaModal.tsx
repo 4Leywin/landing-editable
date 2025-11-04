@@ -10,9 +10,19 @@ interface CtaItem {
 
 interface CtaModalProps {
     ctas: CtaItem[];
+    buttonText?: string;
+    modalTitle?: string;
+    modalTitleHighlight?: string;
+    modalSubtitle?: string;
 }
 
-export default function CtaModal({ ctas }: CtaModalProps) {
+export default function CtaModal({
+    ctas,
+    buttonText = "Reserva tu Sesión",
+    modalTitle = "Elige tu",
+    modalTitleHighlight = "Experiencia",
+    modalSubtitle = "Selecciona el ritual que más resuene contigo",
+}: CtaModalProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const openModal = () => setIsOpen(true);
@@ -27,7 +37,7 @@ export default function CtaModal({ ctas }: CtaModalProps) {
                     className="cursor-pointer group px-12 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-105 shadow-lg hover:shadow-xl text-xl flex items-center justify-center gap-3"
                 >
                     <span>📅</span>
-                    <span>Reserva tu Sesión</span>
+                    <span>{buttonText}</span>
                 </button>
             </div>
 
@@ -57,13 +67,13 @@ export default function CtaModal({ ctas }: CtaModalProps) {
                         {/* Título del modal */}
                         <div className="text-center mb-8">
                             <h3 className="font-serif text-3xl md:text-4xl font-bold text-foreground mb-4">
-                                Elige tu
+                                {modalTitle}
                                 <span className="block text-primary">
-                                    Experiencia
+                                    {modalTitleHighlight}
                                 </span>
                             </h3>
                             <p className="text-foreground/70 text-lg">
-                                Selecciona el ritual que más resuene contigo
+                                {modalSubtitle}
                             </p>
                         </div>
 

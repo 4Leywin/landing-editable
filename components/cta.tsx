@@ -72,7 +72,13 @@ export default async function CTA() {
                         <CtaTimer />
                     </div>
                     {/* Modal con CTAs */}
-                    <CtaModal ctas={ctas} />
+                    <CtaModal
+                        ctas={ctas}
+                        buttonText={contact.modalButtonText}
+                        modalTitle={contact.modalTitle}
+                        modalTitleHighlight={contact.modalTitleHighlight}
+                        modalSubtitle={contact.modalSubtitle}
+                    />
                 </div>
 
                 {/* Contact Info */}

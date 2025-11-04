@@ -305,6 +305,10 @@ export const CONTACT = {
     ctaTitleHighlight: "Distinto",
     ctaDescription:
         "Tu ritual dorado te espera. Elige tu camino hacia la transformación y descubre una nueva dimensión de bienestar, energía y conexión profunda.",
+    modalButtonText: "Reserva tu Sesión",
+    modalTitle: "Elige tu",
+    modalTitleHighlight: "Experiencia",
+    modalSubtitle: "Selecciona el ritual que más resuene contigo",
 };
 
 export const CTAS = [

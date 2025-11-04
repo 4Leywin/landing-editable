@@ -139,6 +139,63 @@ export default function ContactTab() {
                 />
             </div>
 
+            <div className="mb-4 p-3 border-t pt-3">
+                <h3 className="font-semibold mb-2 text-sm">
+                    Texto del Botón y Modal de Reserva
+                </h3>
+                <label className="block text-sm">
+                    Texto del Botón Principal
+                </label>
+                <input
+                    value={contact.modalButtonText || ""}
+                    onChange={(e) =>
+                        setContact({
+                            ...contact,
+                            modalButtonText: e.target.value,
+                        })
+                    }
+                    placeholder="Ej: Reserva tu Sesión"
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">
+                    Título del Modal (línea 1)
+                </label>
+                <input
+                    value={contact.modalTitle || ""}
+                    onChange={(e) =>
+                        setContact({ ...contact, modalTitle: e.target.value })
+                    }
+                    placeholder="Ej: Elige tu"
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">
+                    Título del Modal Destacado (línea 2)
+                </label>
+                <input
+                    value={contact.modalTitleHighlight || ""}
+                    onChange={(e) =>
+                        setContact({
+                            ...contact,
+                            modalTitleHighlight: e.target.value,
+                        })
+                    }
+                    placeholder="Ej: Experiencia"
+                    className="w-full p-2 rounded border mb-2"
+                />
+                <label className="block text-sm">Subtítulo del Modal</label>
+                <input
+                    value={contact.modalSubtitle || ""}
+                    onChange={(e) =>
+                        setContact({
+                            ...contact,
+                            modalSubtitle: e.target.value,
+                        })
+                    }
+                    placeholder="Ej: Selecciona el ritual que más resuene contigo"
+                    className="w-full p-2 rounded border mb-2"
+                />
+            </div>
+
             <div className="flex gap-2 mt-3">
                 <button
                     onClick={saveSection}
