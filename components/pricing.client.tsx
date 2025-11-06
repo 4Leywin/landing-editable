@@ -76,16 +76,6 @@ export default function PricingClient({
                                     </span>
                                 </div>
 
-                                <button
-                                    className={`w-full py-3 rounded-full font-semibold transition-all mb-6 ${
-                                        item.premium
-                                            ? "bg-primary text-background hover:bg-primary-dark"
-                                            : "border-2 border-primary text-primary hover:bg-primary/10"
-                                    }`}
-                                >
-                                    Agendar Ahora
-                                </button>
-
                                 {item.features && item.features.length > 0 && (
                                     <div className="space-y-3">
                                         {item.features.map(
