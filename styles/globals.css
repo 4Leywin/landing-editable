@@ -127,3 +127,36 @@
 html {
     scroll-behavior: smooth;
 }
+
+/* CTA attention animation - subtle "tintineo" */
+@layer utilities {
+    .cta-twinkle {
+        animation: cta-twinkle 1.8s ease-in-out infinite;
+        transform-origin: center;
+        will-change: transform;
+    }
+}
+
+@keyframes cta-twinkle {
+    0% {
+        transform: translateY(0) rotate(0) scale(1);
+    }
+    25% {
+        transform: translateY(-4px) rotate(-1deg) scale(1.01);
+    }
+    50% {
+        transform: translateY(0) rotate(0) scale(1);
+    }
+    75% {
+        transform: translateY(-2px) rotate(1deg) scale(1.005);
+    }
+    100% {
+        transform: translateY(0) rotate(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-twinkle {
+        animation: none !important;
+    }
+}

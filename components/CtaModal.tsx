@@ -34,7 +34,8 @@ export default function CtaModal({
             <div className="md:col-span-2 flex justify-center">
                 <button
                     onClick={openModal}
-                    className="cursor-pointer group px-12 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-105 shadow-lg hover:shadow-xl text-xl flex items-center justify-center gap-3"
+                    className="cursor-pointer group px-12 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-105 shadow-lg hover:shadow-xl text-xl flex items-center justify-center gap-3 vibrate--interval"
+                    aria-label={buttonText}
                 >
                     <span>📅</span>
                     <span>{buttonText}</span>
@@ -83,7 +84,7 @@ export default function CtaModal({
                                 <a
                                     key={cta.label}
                                     href={cta.url}
-                                    className="group px-8 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-102 shadow-lg hover:shadow-xl text-lg flex items-center justify-center gap-3 text-center"
+                                    className="group px-8 py-6 bg-primary text-background font-semibold rounded-xl hover:bg-primary-dark transition-all hover:scale-102 shadow-lg hover:shadow-xl text-lg flex items-center justify-center gap-3 text-center vibrate--interval"
                                     onClick={closeModal}
                                     target="_blank"
                                     rel="noopener noreferrer"

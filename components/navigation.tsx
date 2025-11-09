@@ -61,13 +61,13 @@ export default function Navigation({
                 <div className="flex justify-between items-center h-20 px-4">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <span className="font-serif text-xl font-bold text-primary hidden sm:inline">
+                        <span className="font-serif text-xl font-bold text-primary inline">
                             {siteName}
                         </span>
                     </Link>
 
                     {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-8">
+                    <div className="hidden items-center gap-8">
                         {visibleNav.map((item) => (
                             <Link
                                 key={item.href}
@@ -88,7 +88,7 @@ export default function Navigation({
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden text-primary"
+                        className="hidden text-primary"
                         onClick={() => setMobileOpen(!mobileOpen)}
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
@@ -97,7 +97,7 @@ export default function Navigation({
 
                 {/* Mobile Menu */}
                 {mobileOpen && (
-                    <div className="md:hidden pb-4 border-t border-border bg-secondary w-full">
+                    <div className="hidden pb-4 border-t border-border bg-secondary w-full">
                         {visibleNav.map((item) => (
                             <Link
                                 key={item.href}
