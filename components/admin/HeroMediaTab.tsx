@@ -35,8 +35,21 @@ export default function HeroMediaTab() {
         try {
             const type = file.type.startsWith("video") ? "video" : "image";
             let url = "";
-            if (type === "image") url = await uploadImageFile(file, "hero");
-            else url = await uploadVideoFile(file, "hero");
+            // Si es video y hay uno anterior, eliminarlo
+            if (type === "video" && hero.videoSrc) {
+                try {
+                    const prevFilename = hero.videoSrc.split("/").pop();
+                    if (prevFilename)
+                        await import("@/services/cloudinary").then((m) =>
+                            m.deleteFile(prevFilename)
+                        );
+                } catch (err) {
+                    // No bloquear por error de borrado
+                    console.warn("No se pudo borrar el video anterior", err);
+                }
+            }
+            if (type === "image") url = await uploadImageFile(file);
+            else url = await uploadVideoFile(file);
 
             const newHero = { ...hero, videoSrc: url };
             setHero(newHero);

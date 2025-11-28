@@ -69,9 +69,9 @@ export default function GalleryTab() {
         try {
             let url = "";
             if (type === "image") {
-                url = await uploadImageFile(file, "gallery");
+                url = await uploadImageFile(file);
             } else {
-                url = await uploadVideoFile(file, "gallery");
+                url = await uploadVideoFile(file);
             }
 
             const newItems = [
@@ -427,18 +427,48 @@ export default function GalleryTab() {
                                                             )
                                                                 ? "video"
                                                                 : "image";
+                                                        // Si el recurso anterior es video y tiene src, eliminarlo
+                                                        if (
+                                                            type === "video" &&
+                                                            resources[idx]?.src
+                                                        ) {
+                                                            try {
+                                                                const prevFilename =
+                                                                    resources[
+                                                                        idx
+                                                                    ].src
+                                                                        .split(
+                                                                            "/"
+                                                                        )
+                                                                        .pop();
+                                                                if (
+                                                                    prevFilename
+                                                                )
+                                                                    await import(
+                                                                        "@/services/cloudinary"
+                                                                    ).then(
+                                                                        (m) =>
+                                                                            m.deleteFile(
+                                                                                prevFilename
+                                                                            )
+                                                                    );
+                                                            } catch (err) {
+                                                                console.warn(
+                                                                    "No se pudo borrar el video anterior",
+                                                                    err
+                                                                );
+                                                            }
+                                                        }
                                                         let url = "";
                                                         if (type === "image")
                                                             url =
                                                                 await uploadImageFile(
-                                                                    f,
-                                                                    "gallery"
+                                                                    f
                                                                 );
                                                         else
                                                             url =
                                                                 await uploadVideoFile(
-                                                                    f,
-                                                                    "gallery"
+                                                                    f
                                                                 );
                                                         const newItems =
                                                             resources.map(
