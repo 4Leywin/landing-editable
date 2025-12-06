@@ -48,13 +48,7 @@ export default function RootLayout({
                     rel="dns-prefetch"
                     href="https://landings-5bef0.firebaseapp.com"
                 />
-                {/* Preload hero poster (LCP) */}
-                <link
-                    rel="preload"
-                    as="image"
-                    href="/placeholder.svg?height=720&width=1280"
-                    fetchPriority="high"
-                />
+                {/* Nota: El preload del video se maneja dinámicamente por el navegador con preload="auto" */}
             </head>
             <body
                 className={`${playfair.variable} ${montserrat.variable} font-sans antialiased bg-background text-foreground`}
